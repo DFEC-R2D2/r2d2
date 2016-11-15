@@ -83,6 +83,7 @@ if __name__ == '__main__': # !!This helps with using threads if I declare a "mai
 # Honestly, you could probably switch the GPIO pin number to whatever necessary in testing.
 # Was trying to send a read signal to MOSI to get a status register response from MISO. 
     # See https://www.sparkfun.com/datasheets/Components/SMD/nRF24L01Pluss_Preliminary_Product_Specification_v1_0.pdf
+        # Pg 56 and 49
     
 # --== OUTPUT EXAMPLE ==-- 
 # [0][0][0][0][14][0][14][0][14][0][0][12][0][14][0][14][0][12][8][0][14]
