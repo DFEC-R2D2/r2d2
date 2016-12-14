@@ -1,0 +1,143 @@
+// Matt Grimm
+// USAFA
+// This program uses the Microview to display interactions between two sensors -- an IR sensor and a sonar sensor. Interrupts could have been used, but I used more of a polling method to see how signals have changed
+// in relation to the previous code cycle. 
+
+// https://www.arduino.cc/en/Main/ArduinoBoardUno 
+// Arduino documentation is better than Pi. 
+//https://www.arduino.cc/en/Reference/HomePage
+// Arduino boards are also easier to use due to labeling and ICSP for SPI.
+// Arduino also needs only power/keeps code if volatile. But, Pi is computer.
+// Pi also is MUCH Faster (900/16) times faster on a quick search. 
+
+// I have decided to have one arduino run 2 different sensors. This is essentially the same (if not harder) than
+// the raspberry pi listening to two different devices. I made this change because I don't have a monitor to spare unless
+// I download arduino stuff onto my super slow internet computer which I don't want to waste time doing. 
+
+// EDIT: actually, it is the near the same because the IR, although simple, acts independantly from anything. Only uses Arduino as power source.
+
+
+#include <MicroView.h>
+// example of why SPI would be better (could do more than just 1/0). 
+
+// make L/R coordinates sheet/functions 
+// working with 64 by 48
+#define LCDWidth      uView.getLCDWidth() //64
+#define LCDHeight     uView.getLCDHeight() //48
+#define REC_WH        5    // 48/8 = 6 max for vert. Horizontal depends on number of lines. 
+                           // Could make letters skinnier for finer detail. 
+
+// 0x## is vertical strip of when to place block from top to bottom. EX: 0b1010 places every other block starting from top.
+uint8_t Lshape []= {0xFF,0xFF,0x03,0x03,0x03,NULL};  // Terminating char added to know when to stop. 
+uint8_t Rshape []= {0xFF,0x98,0x94,0x62,0x01,NULL};
+// !!!!!!! I realized that printing R/L using a library would've been easier, but i wanted to make it on my own !!!!!
+
+MicroViewWidget *widget; 
+
+uint8_t sensorPin = A0;
+uint8_t sensorIR = A1; 
+uint8_t prevVal = 0;
+uint8_t prevValIR = 0;
+uint8_t posChange = 0;
+uint8_t posChangeIR = 0;
+
+void setup() {
+  // put your setup code here, to run once:
+  uView.begin();
+  uView.clear(PAGE);
+
+  Serial.begin(9600);
+  widget = new MicroViewSlider(20,5,-99,99,WIDGETSTYLE2);
+  // widget = new MicroViewSlider(100,100,-5,5,WIDGETSTYLE2); // move off screen for testing. 
+  (*widget).setValue(0); //widget->setValue(5) equivalent. 
+
+  digitalWrite(sensorPin,LOW); // pulldown(I think...using HIGH is pullup, so...) 
+  pinMode(sensorPin,INPUT);
+
+  digitalWrite(sensorIR,HIGH); // Active Low
+  pinMode(sensorIR,INPUT);
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+ uint8_t SensorVal = digitalRead(sensorPin);
+ uint8_t SensorIRVal = !digitalRead(sensorIR); //IR is more precise, so moving average for value is not necessary. 
+
+ // Sensor Value readings. Clean up into functions? (abstract?)
+ // "SensorVal" relates to the sonar sensor. This is because originally I only had the sonar sensor. The IR sensor is marked as such in each variable.
+ if(!prevVal && SensorVal){
+  posChange = 1;
+ }
+ else{
+  posChange = 0;
+ }
+ prevVal = SensorVal;
+
+ if(!prevValIR && SensorIRVal){
+  posChangeIR = 1;
+ }
+ else{
+  posChangeIR = 0;
+ }
+ prevValIR = SensorIRVal;
+ 
+  //uView.setCursor(15,20); // used for testing purposes. 
+  //uView.print(SensorVal);
+  
+ if(SensorVal){
+   drawFig(0,5,REC_WH,Lshape,WHITE,NORM); // test to see what NORM does. I think XOR just turns off/on same pixels. 
+   if(posChange){
+    widget->setValue((widget->getValue())-1);
+   }
+  }
+  else{
+    drawFig(0,5,REC_WH,Lshape,BLACK,NORM);
+  }
+  
+  if(SensorIRVal){
+    drawFig(40,5,REC_WH,Rshape,WHITE,NORM);
+    if(posChangeIR){
+      widget->setValue((widget->getValue())+1);
+    }
+  }
+  else{
+    drawFig(40,5,REC_WH,Rshape,BLACK,NORM); 
+  }
+  
+  //figSpin(-5,5,1000,widget);
+  delay(100); // Need this delay or widget doesn't "stick" and doesn't show slider.
+  uView.display();
+}
+
+void drawFig(uint8_t x, uint8_t y, uint8_t rec_wh,uint8_t fig [],uint8_t color, uint8_t mode){
+  unsigned char i,j;
+  uint8_t screen = 0x80;
+  for(j=0;fig[j]!= NULL;j++){
+    for (i=0; i < 8; i++){ // 8 rows of value possible. 
+      if(fig[j] & screen){
+        uView.rectFill(x,y+i*rec_wh,rec_wh,rec_wh,color,mode);
+      }
+      screen >>= 1;
+    }
+    screen = 0x80;
+    x+=rec_wh;
+  }
+}
+
+void figSpin(int8_t lowVal,int8_t highVal,int delayVal, MicroViewWidget *widget){
+ // Spin  
+  for(int8_t z = highVal; z>=lowVal;z--){
+    widget->setValue(z);
+    uView.display();
+    Serial.println(z);
+    delay(delayVal);
+  }
+  for(int8_t z = lowVal; z<=highVal;z++){
+    widget->setValue(z);
+    uView.display();
+    Serial.println(z);
+    
+    delay(delayVal);
+  }
+  // End Spin
+}
