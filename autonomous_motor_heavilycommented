@@ -1,0 +1,328 @@
+# Matt Grimm
+# USAFA
+from breezylidar import URG04LX
+
+import RPi.GPIO as GPIO
+import time
+import sys,signal
+import time
+import math
+import serial 
+
+DEG_VAR = 0.35242291  # number of degrees between each LIDAR data point.
+OFFSET = 30 #(240 - 180) / 2. Iniitially used to easily program on a 180 degree plane instead of a 240 degree plane the LIDAR is capable of surveying. 
+ITER = 3 # LIDAR takes data 3 times, then averages those values to get a final reading. More iterations = more accuracy, but slower. 
+POINTS = 682 # LIDAR captures this many points per spin.
+NUM_SECTIONS = 227 # POINT/NUM_SECTIONS gives how big each section is. For instance, right now, each section is 3 data points wide.
+SECTION_LEN = POINTS/NUM_SECTIONS
+LID_SHORT = 300 # Arbitrary point where LIDAR raw data is considered short distance. 
+LID_MED = 2000
+SON_SHORT = 50 # Arnotraru [pomt where SONAR is considered short distance. 
+SON_MED = 250
+SON_ERROR_MAX = 1400 # Sometimes Sonar gives a very large incorrect value. This is to throw away all values above this error value to gain accuracy. Sonar returns data in inches, so 1400 inches is equal to about 38 meters, or roughly 7 times further than the LIDAR is capable of.
+PRINT_LONG = 1 # used as a flag to determine what gets printed to the screen. PRINT_LONG will print very detailed data to the screen.
+PRINT_SHORT = 0 # PRINT_SHORT will print a more concise version of the data to the screen. 
+# MIDDLE = NUM_SECTIONS /2 -> This could be done to replace the data points in SELECT# (see next two lines). For instance, [-1,113,-1] would become [-1,MIDDLE,-1] under this naming convention. 
+SELECT1 = [-1,113,-1] # Varibale name for which sections (in degrees) I want to read. -1 means don't read a section there. SELECT1 only reads the center (straight ahead) value. 
+SELECT2 = [29,113,198] # Choose up to 3 areas to see data from -> SELECT2 is left, mid, right at the moment. 
+SON_SCALE = 26.46 # Lidar/inch (b/c sonar returns data in inches) #Adjusted to LIDAR raw data as 317.5/ft (avg change) vs. 333.2/ft (linear change/best fit line when LIDAR was characterized).
+# In short, this varibale converts Sonar data onto the same scale as the LIDAR values, so the sonar reading an object 1 foot away would give the same number as the LIDAR reading an object 1 foot away.
+ALLOW_ERROR = 3 # In feet. Just a quick variable I can adjust to determine the allowable error between the LIDAR reading and the Sonar reading to determine if they agree on the values recorded or not.
+#This is the margin of error allowed. (The sonar reading can be 3 feet max off of the LIDAR reading and that counts as the sonar and LIDAR both getting the same data. 
+MIN_DIST_ALLOW = 130 # THIS VALUE IS VERY IMPORTANT! It should be tinkered and changed when testing.
+#It determines how close an object must be for R2D2 to consider it as in the way. A maneuver is executed/necessary if an object is closer than this distance (units in LIDAR raw data).
+LIDAR_PROB_ERROR = 3990 # LIDAR has a problem with reflective surfaces.
+#Right now the value will return as 3994 if a reflective surface is in the way of the LIDAR reading. Because 3994>3990, the reflective surface situation reading will be rejected.
+
+# ===============================================
+#               SETUP/BOOT STARTUP
+# ===============================================
+GPIO.setmode(GPIO.BCM)
+
+# Sonar triggers so the sonar knows when to send a pulse out to read.
+TRIG1 = 15
+TRIG2 = 14
+TRIG3 = 23
+
+# Result of sonar pulse sent out. Voltage dividers are used because Pi pin input is at 3.3V and the echo signal from the sonar is 5V. 
+ECHO1 = 8
+ECHO2 = 25
+ECHO3 = 24
+
+# Pins to go to the Arduino. For the LCD. 
+L_MOTOR_PIN = 17
+R_MOTOR_PIN = 27
+STOP_MOTOR_PIN = 22
+ALL_PIN = 10
+
+# Determine which pins are output (triggers and Arduino values) and input (echo values) 
+GPIO.setup(TRIG1,GPIO.OUT)
+GPIO.setup(TRIG2,GPIO.OUT)
+GPIO.setup(TRIG3,GPIO.OUT)
+GPIO.setup(ECHO1,GPIO.IN)
+GPIO.setup(ECHO2,GPIO.IN)
+GPIO.setup(ECHO3,GPIO.IN)
+GPIO.setup(L_MOTOR_PIN,GPIO.OUT)
+GPIO.setup(R_MOTOR_PIN,GPIO.OUT )
+GPIO.setup(STOP_MOTOR_PIN,GPIO.OUT)
+GPIO.setup(ALL_PIN,GPIO.OUT)
+
+# Set everything to 0 to start off. Resets values. 
+GPIO.output(ALL_PIN,0)
+GPIO.output(TRIG1,0)
+GPIO.output(TRIG2,0)
+GPIO.output(TRIG3,0)
+GPIO.output(L_MOTOR_PIN,0)
+GPIO.output(STOP_MOTOR_PIN,0)
+GPIO.output(R_MOTOR_PIN,0)
+
+# Output values to Arduino are in an array so I can loop through the array and act on each value.
+OUTPUT_PINS = [R_MOTOR_PIN,STOP_MOTOR_PIN,L_MOTOR_PIN]
+sonar_prev=[[-1 for x in range(10)] for y in range(3)] # Store the 10 most recent sonar values. This is used to analyze and identify false readings.
+
+# Allows you to press ctrl-c to exit the program.
+def signal_handler(signal,frame):
+    print("\nprogram exiting")
+    GPIO.cleanup() # Good practice to cleanup at end.
+    sys.exit(0) # Exit with no errors.
+    GPIO.cleanup()
+signal.signal(signal.SIGINT,signal_handler) #Function is signal.signal(). If KEYBOARD INTERRUPT received (ctrl-c), then do the function.
+# ========================================================
+#                     MOTOR CONTROL SERIAL SETUP
+# ========================================================
+
+# Setup the serial connection to go to the motor controller.
+try:
+    ser = serial.Serial(port='/dev/ttyACM0',baudrate=115200)
+except:
+    # If the first serial port doesn't work, try the second one. The LIDAR uses these serial ports as well, so whichever is available afterwards, the LIDAR will use. 
+    ser = serial.Serial(port='/dev/ttyACM1',baudrate=115200)
+speed = 100 # How fast the motor should go. 
+# =========================================================
+#            LIDAR SETUP
+# =========================================================
+
+# The Pi sometimes will have trouble identifying the LIDAR, so multiple tries are necessary. The code will wait for the LIDAR is successfully found before it moves on. 
+laser = None
+while laser is None:
+    try:
+        laser = URG04LX('/dev/ttyACM1')
+    except:
+        laser = URG04LX('/dev/ttyACM0')
+        pass
+
+# Create a 2D array. Points X Iterations. 
+full_data = [[0 for x in range(POINTS)] for y in range(ITER)]
+
+# every 333.2 raw data = 1 ft. for the LIDAR. 
+
+print('===============================================================')
+print(laser)
+print('===============================================================')
+
+# =====================================================================
+#                       FUNCTIONS
+# =====================================================================
+
+def data_sum(data):
+    # Quick data summer. This is because each LIDAR conic section can be multiple points wide. I average the points to get the reading for the section.  
+    sum = 0
+    for q in data:
+         sum = sum + q
+    return sum
+
+def fix_max_error(full_data):
+    # The LIDAR will return a '0' if an object is too far or a reflective surface is hit. I want it instead to turn it into '4000' which indicates that the object was very far away.
+    # In short, I switch all 0's in the LIDAR data array to 4000's because I want the error to represent the object as far away. 
+    for i in range(ITER):
+        for j in range(POINTS):
+            if(not full_data[i][j]):
+                full_data[i][j]=4000
+    return full_data
+
+def update_sonar_vals(sonar_vals,val_right,val_center,val_left):
+    # Shift everything right and add in new value to first position.
+    # This updates the sonar value history log. 
+    for i in range(3):
+        for j in range(9):
+            sonar_vals[i][9-j] = sonar_vals[i][8-j]
+    sonar_vals[0][0] = val_right
+    sonar_vals[1][0] = val_center
+    sonar_vals[2][0] = val_left
+    return sonar_vals
+
+def sonar_val(echo_pin,trig_pin):
+    # Sonar propagates a sound and reads the time it takes to return to get a distance value. 
+    distance = SON_ERROR_MAX + 1 # Set the distance to an unwanted value so the while loop below will continue until a correct value appears.
+    while(distance>=SON_ERROR_MAX): # Keep trying to read values until a 'valid' signal is received.
+        # Send trigger
+        GPIO.output(trig_pin,1)
+        time.sleep(0.00001)
+        GPIO.output(trig_pin,0)
+        # Start sentinal time. This is so if a valid signal is not returned, an "invalid -1" will be returned from the function instead. The while loop can be used, but the sonar will move on if it cannot detect something.
+        senti_time = time.time()
+        # Read length of pulse signal. If it is taking too long, just move on to next sonar sensor. 
+        while GPIO.input(echo_pin)==0:
+            pulse_start = time.time()
+            if(senti_time - pulse_start > 2):
+                break
+        while GPIO.input(echo_pin)==1:
+            pulse_end = time.time()
+            if(pulse_start - pulse_end >2):
+                break
+        try: 
+            pulse_duration=pulse_end - pulse_start
+        except:
+            return -1
+        
+        # Convert the pulse duration into a distance in inches. 
+        distance = round(pulse_duration * 6751.95,2)
+
+    return distance # In inches
+
+def get_lidar_vals(full_data,select,long = 0):
+    # full_data = raw data the lidar receives (with the 0 -> 4000 correction).
+    # select = Which sections will be read. (SELECT1 = only middle section read). 
+    # long = 1 for printing out each data point vs. 0 for printing out average of section only.
+
+    # I made flexible code so the user can easily switch what the LIDAR reads (# sections, which sections, how large each section is). 
+    character = 'x'
+    values = [-1 for i in range(len(select))]
+
+    for b in range(NUM_SECTIONS):
+        temp_sum = 0
+        # If the 'select' contains a wanted section to be read, analyze and mold that data. 
+        if(b in select):
+            # Average the values for that section according to # of iterations taken (how many times the LIDAR collects data). This dampens any error introduced in the readings.
+            for a in range(ITER):
+                temp_sum = math.floor(data_sum(full_data[a][math.floor(b*(SECTION_LEN)):math.floor((b+1)*(SECTION_LEN))])/(SECTION_LEN)) + temp_sum
+            temp_sum = temp_sum/ITER
+            # Setup the array to be returned with the averaged values. 
+            values[select.index(b)] = temp_sum
+
+        # Just some code for troubleshooting/analyzing. The commented out code below was my initial print statement troubleshooting, but it has been unused.
+        # The code between this line and "return values" probably be deleted, along with the "long" flag and any associated code. 
+        if(temp_sum < LID_SHORT):
+            character = 'S'
+        elif(temp_sum < LID_MED):
+            character = 'M'
+        else:
+            character = 'L' 
+            #print('{:<12} {:<7} {:<15} {:<10} {:<10}'.format('SECTION '+str(b)+':',str(temp_sum),'POINTS '+str(math.floor(b*(SECTION_LEN)))+':'+ \
+                  # str(math.floor((b+1)*(SECTION_LEN))),'DEG: '+str(math.floor(DEG_VAR*b*(SECTION_LEN))),'DIST: '+character.rjust(1)))
+            #if(long):
+                #for i in range(math.floor(SECTION_LEN)):
+                  #  print('VALUE ' + str(math.floor((b*(SECTION_LEN))) + i) + ': ' + str(full_data[a][math.floor((b*(SECTION_LEN))) + i]))
+                 #   # Gives last iteration values, but actual sum based off average of all iterations. 
+               # input("Press Enter \n")
+    return values
+
+def analyze_data(sonar_vals,lidar):
+    # Take the sonar and LIDAR data and compare them to each other. Print useful data to see on monitor, and return correct distance values.
+    # Right now, I have the code setup so the LIDAR data will be used, unless it is receiving false information (due to seeing a reflective surface such as a window). If that is the case, the Sonar data will be used.
+    
+    #At the moment (if right, mid, and/or left are mixed up, just change the varibale names. I think last time I tested it, these values were correct. To test, run the code, put something in front of the sensor, and see if the expected
+    # value returns data showing a close object is seen.)
+    # Template: sonar_vals[sonar position][sonar history value with '0' being most recent]
+    #   sonar_vals[0][0] = current right sonar val.
+    #   sonar_vals[1][0] = current mid sonar val.
+    #   sonar_vals[2][0] = current left sonar val.
+    #   sonar_vals[x][1-9] = past values. 
+    #   lidar[0]    = lidar right
+    #   lidar[1]    = lidar middle.
+    #   lidar[2]    = lidar left.
+
+    # Arrays are heavily used because the initial constant variables can be changed with what options the programmer wants, and the code will run through each array value itself and adjust according to the selected options.
+    agree = [1 for i in range(len(lidar))]
+    distance_vals = [0 for i in range(len(lidar))]
+    # Sometimes sonar "misses"(on diagnol walls) an object and spikes/sees stuff behind it. I read the minimum value to filter out this problem. This is where the sonar data history comes into effect.
+    # This isn't a perfect method, but it'll do for now. 
+    sonar_spike_resistL = min(sonar_vals[2][0:2])
+    sonar_spike_resistM = min(sonar_vals[1][0:2])
+    sonar_spike_resistR = min(sonar_vals[0][0:2])
+
+    # Determine if the LIDAR is getting messed up values by cross checking it with the sonar values. 
+    for i in range(len(lidar)):
+        # If lidar is in 'error range' and the sonar is not agreeing. If the sonar agrees with the LIDAR while it is in the 'error range', that means the LIDAR is correctly picking up an object far away. 
+        if((lidar[i]>LIDAR_PROB_ERROR) and (abs(lidar[i]- (min(sonar_vals[i][0:2])*SON_SCALE))) >= (ALLOW_ERROR*12*SON_SCALE)):
+            # If they don't agree, use sonar data. 
+            agree[i] = 0
+            distance_vals[i] = min(sonar_vals[i][0:2])*SON_SCALE
+        else:
+            # else use LIDAR data.
+            agree[i] = 1
+            distance_vals[i] = lidar[i]
+
+    # Neatly print all the information received. Just run the program and see the stdout in the command window. All the information received is neatly printed out. 
+    print('{:<15} {:<15} {:<15} {:<15}'.format('TYPE','LEFT','MID','RIGHT'))
+    print('{:<15} {:<15} {:<15} {:<15}'.format('SONAR(in)',str(round(sonar_spike_resistL,4)),str(round(sonar_spike_resistM,4)),str(round(sonar_spike_resistR,4))))
+    print('{:<15} {:<15} {:<15} {:<15}'.format('LIDAR(raw)',round(lidar[2],2),round(lidar[1],2),round(lidar[0],2)))
+    print('{:<15} {:<15} {:<15} {:<15}'.format('AGREE?',agree[2],agree[1],agree[0]))
+    print('{:<15} {:<15} {:<15} {:<15}'.format('FINAL VAL(raw)',round(distance_vals[2],2),round(distance_vals[1],2),round(distance_vals[0],2)))
+    print('')
+
+    # Return the deconflicted distance values. 
+    return distance_vals
+
+def action(dist_vals):
+    # Use the distance values to take action.
+    
+    #dist_vals[0] = RIGHT -> Arduino PIN 6
+    #dist_vals[1] = CENTER -> Arduino PIN 5
+    #dist_vals[2] = LEFT -> Arduino PIN 7
+    #all -> Arduino PIN 24
+    # NOTE: THE LCD IS NOT CURRENTLY HOOKED UP, BUT THE CIRCUITRY IS IN PLACE ON THE MINI BREADBOARD. THE LCD ONLY NEEDS TO BE DIRECTLY PLUGGED IN AND THE OUTPUT CONNECTIONS FROM THE PI TO ARDUINO NEED TO BE MADE.
+
+    # If all sides are seeing an object:
+    if((dist_vals[0] < MIN_DIST_ALLOW) and (dist_vals[1] < MIN_DIST_ALLOW) and (dist_vals[2] < MIN_DIST_ALLOW)):
+       # GPIO.output(ALL_PIN,0) #<- This line is meant to send an active low signal to interact with the Arduino and its code.
+
+       # The below code is how the motor controller code works. These two lines are for turning on both motors and moving R2D2 forward. See the motor controller code.
+       # I was having integration troubles, and was not able to test this part, but I believe it will be necessary to find a way to make the signal "stick", or continuously be sent while the next sensor values are found and the
+       # next motor action is made. I believe right now it may just send one "forward signal" until the next time around which may take too long so a stutter step will be noticeable.
+       # For testing, I planned on putting my hand all around the LIDAR, so all sides will show a close object, and the R2D2 would move forward.
+       # The other cases are not setup with the motor code because I did not get past testing this first simple case. 
+      # ser.write(b"!g 1 " + str(speed) + b"\r")
+      # ser.write(b"!g 2 -" + str(speed) + b"\r")
+       print("all")
+    else:
+        GPIO.output(ALL_PIN,1)
+        
+        for i in range(len(dist_vals)):
+            # Read each side (currently the left, middle, and right sides) and send an active low signal to the Arduino if a close object is seen. 
+            if(dist_vals[i] < MIN_DIST_ALLOW):
+                #Activate pin to raise motor controller
+                GPIO.output(OUTPUT_PINS[i],0)
+                print(OUTPUT_PINS[i])
+            else:
+                GPIO.output(OUTPUT_PINS[i],1)
+            # See intended behavioral diagram to see how R2D2 should react if a close object is seen. It can be adjusted or changed to meet however y'all want it to act, but it's a good starting point.
+            
+    time.sleep(0.5) # ! This value will be switched a lot. It is here so R2D2 has time between reads so I can read the printed statements of data. Take this out/make it shorter to speed up the number of sensor reads/time elapsed. 
+
+    # since the physical action is taken within the code, there is nothing (yet) to be returned. 
+    return
+
+# ============================================
+#              MAIN PROGRAM
+# ============================================
+while(1):
+    # The continuous code to go through the steps over and over again until the connection ends. 
+    for k in range(ITER):
+        start_t = time.time()
+        full_data[k]=laser.getScan()
+        elapsed_t = time.time() - start_t # around 100 ms. This time code here is used to see how long it takes for R2D2 to gather data once. 
+        #print('ELAPSED VER ' + str(k+1) + '     '+ str(math.floor(elapsed_t * 1000000)/1000) +' ms \n')
+    full_data = fix_max_error(full_data)
+    sonar_value1 = sonar_val(ECHO1,TRIG1)
+    sonar_value2 = sonar_val(ECHO2, TRIG2)
+    sonar_value3 = sonar_val(ECHO3, TRIG3)
+    sonar_prev = update_sonar_vals(sonar_prev,sonar_value1,sonar_value2,sonar_value3)
+    
+    lidar_values = get_lidar_vals(full_data,SELECT2,PRINT_SHORT) 
+
+    dist_vals = analyze_data(sonar_prev,lidar_values)
+
+    action(dist_vals)
+
+    
