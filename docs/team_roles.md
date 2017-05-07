@@ -53,6 +53,8 @@ Responsibilities
     - [CE] Can't tell what is working and what isn't
         - Fill in all of the LED lights R2 should have
     - [CE/EE] Need debugging tools (hardware/software) before starting individual projects
+        - [CE] Webserver status
+    - [CE] Run wireless joystick directly from R2
 - Design R2 to be a display in the front office
     - [EE] Must be able to disable movement (external switch)
     - [EE] Must run off standard 120V wall socket
