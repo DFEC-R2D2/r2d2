@@ -13,6 +13,7 @@ pylint:
 
 ignore-paths:
     - Archive_2017
+    - docs
 
 python-targets:
     - 2
