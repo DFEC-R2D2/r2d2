@@ -34,18 +34,26 @@ Responsibilities
 
 | Key |                     |
 |-----|---------------------|
-|EE   | Electrical Engineer |
-|CE   | Computer Engineer   |
-|SE   | Systems Engineer    |
+| EE  | Electrical Engineer |
+| CE  | Computer Engineer   |
+| SE  | Systems Engineer    |
 
-- [EE] Front leg needs to be correct length so R2 don't fall over so easily
+- [EE] Fix chassis
+    - Front leg needs to be correct length so R2 don't fall over so easily
+    - Fix doors, they are all falling off
+    - Fix legs ... they look like C3PO in episode I
+    - Fix everything held on with duck tape and hot glue (magnets are nice)
 - [EE] Fix charging system
     - What automatic charging system instead of manual
     - Investigate switch to NiMH
-    - Investigate 383 robot chargers
+        - Investigate 383 robot chargers
     - One simple cable from a standard wall mount (or charger if not possible) 
 - [CE] Modernize software
 - [SE] Document system
+    - All software that needs to be installed and where/how to get it
+    - Digital docs for all parts/component
+    - Complete BOM
+    - Complete power/weight budget 
 
 # Topics for This Year
 
@@ -59,7 +67,7 @@ Responsibilities
     - [EE] Must be able to disable movement (external switch)
     - [EE] Must run off standard 120V wall socket
     - [CE] Must be animated and friendly
-        - Notice when people enter the room
-        - In some cases great people
+        - Notice when people enter the room (move head/play sound/???)
+        - In some cases greet people
         - In some cases recognize people (maybe too difficult)
         - Head must move (or track) people
