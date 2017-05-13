@@ -1,7 +1,9 @@
 engines:
   pep8:
     enabled: true
-
+    checks:
+      W191:
+        enabled: false
 ratings:
    paths:
    - "**.py"
