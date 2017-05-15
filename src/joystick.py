@@ -24,6 +24,7 @@ import time  # sleep ... why?
 import argparse
 from pygecko import ZmqClass as zmq
 from pygecko import Messages as Msg
+# import multiprocessing as mp
 
 
 class Joystick(object):
@@ -57,9 +58,12 @@ class Joystick(object):
 		DPadX           = 7th Axis
 		DPadY           = 8th Axis (Inverted?)
 
+	WARNING: doesn't work as a process
+
 	"""
-	def __init__(self, host, port):
-		self.pub = zmq.Pub((host, port))
+	def __init__(self, net):
+		# mp.Process.__init__(self)
+		self.pub = zmq.Pub(net)
 
 		# init SDL2 and grab joystick
 		sdl2.SDL_Init(sdl2.SDL_INIT_JOYSTICK)
@@ -73,10 +77,12 @@ class Joystick(object):
 		print('==========================================')
 		print(' Joystick ')
 		print('   axes:', a, 'buttons:', b, 'hats:', h)
-		print('   publishing: {}:{}'.format(host, port))
+		print('   publishing: {}:{}'.format(*net))
 		print('==========================================')
 
-	def run(self, verbose, rate):
+	def run(self):
+		verbose = True
+		rate = 1
 		js = self.js
 		dt = 1.0/rate
 		ps4 = Msg.Joystick()
@@ -165,8 +171,9 @@ def handleArgs():
 
 def main():
 	args = handleArgs()
-	js = Joystick(args['publish'][0], args['publish'][1])
-	js.run(args['verbose'], args['rate'])
+	js = Joystick(args['publish'])
+	# js.run(args['verbose'], args['rate'])
+	js.run()
 
 
 if __name__ == "__main__":

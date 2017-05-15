@@ -8,6 +8,8 @@
 from __future__ import print_function
 from __future__ import division
 import Adafruit_PCA9685.PCA9685 as PCA9685
+from pygecko import ZmqClass as zmq
+from pygecko import Messages as Msg
 # import logging
 # logging.basicConfig(level=logging.DEBUG)
 # logging.basicConfig(level=logging.ERROR)

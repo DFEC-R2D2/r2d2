@@ -6,20 +6,35 @@ from __future__ import division
 # from time import sleep
 from Sounds import Sounds
 # from Speech import SphinxServer
+from led import LEDDisplay
+from joystick import Joystick
+
+
+net = {
+	'joystick': ('0.0.0.0', 9000),
+	'sounds': ('0.0.0.0', 9001),
+	'speech': ('0.0.0.0', 9002),
+	'vision': ('0.0.0.0', 9003)
+}
 
 
 def main():
-	print('main')
+	for k, v in net.items():
+		print('process:', k, v)
 
 	try:
 		s = Sounds()
+		led = LEDDisplay()
+		js = Joystick(net['joystick'])
 		# ss = SphinxServer()
 
 		s.start()
-		ss.start()
+		led.start()
+		js.start()
 
 		s.join()
-		ss.join()
+		led.join()
+		js.join()
 
 	except KeyboardInterrupt:
 		print('<<<<<<<< keyboard >>>>>>>>>>>')
