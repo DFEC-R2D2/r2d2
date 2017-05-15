@@ -5,7 +5,7 @@ from __future__ import division
 # import multiprocessing as mp
 # from time import sleep
 from Sounds import Sounds
-from Speech import SphinxServer
+# from Speech import SphinxServer
 
 
 def main():
@@ -13,7 +13,7 @@ def main():
 
 	try:
 		s = Sounds()
-		ss = SphinxServer()
+		# ss = SphinxServer()
 
 		s.start()
 		ss.start()

@@ -1,5 +1,7 @@
-
 {
-	"start": "hi",
-	"stop": "bye"
+	"start": "/home/pi/github/r2d2/sounds/word/word6.wav",
+	"stop": "/home/pi/github/r2d2/sounds/word/word6.wav",
+	"warning": "/home/pi/github/r2d2/sounds/word/word6.wav",
+	"excitment":"/home/pi/github/r2d2/sounds/word/word9.wav",
+	"sad": "/home/pi/github/r2d2/sounds/word/word22.wav"
 }
