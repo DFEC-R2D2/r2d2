@@ -60,7 +60,10 @@ The relays operate on 12V and can handle between 30A-40A depending on the type. 
 - **Normally Closed (NC):** pins 30 and 87a are the default current path
 - **Normally Open (NO):** pins 30 and 87 are the alternate current path
 
-[How automotive relays work](https://www.youtube.com/watch?v=UAeKTlieYhw)
+Some good references on relays:
+
+- [How automotive relays work](https://www.youtube.com/watch?v=UAeKTlieYhw)
+- [Explaination of different relay types](http://www.12voltplanet.co.uk/relay-guide.html)
 
 ### Batteries
 
@@ -89,4 +92,4 @@ anything goes wrong, just pull the external power. Thinking a 12V 5A wall wart w
 
 # Useful Links
 
--[www.artoo-detoo.net](http://www.artoo-detoo.net/tag/roboteq)
+- [www.artoo-detoo.net](http://www.artoo-detoo.net/tag/roboteq)
