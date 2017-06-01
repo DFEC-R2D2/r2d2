@@ -90,6 +90,13 @@ and maybe just the dome/periscope motors. In this configuration, the emergency s
 wouldn't work on the dome/periscope motors (remember the legs *are* disabled), but if
 anything goes wrong, just pull the external power. Thinking a 12V 5A wall wart would work.
 
+## Motors
+
+Re-selecting the Motor Controller, since it appears no engineering was done to select the
+very expensive one we currently have.
+
+Initial analysis is [here](motors.ipynb)
+
 # Useful Links
 
 - [www.artoo-detoo.net](http://www.artoo-detoo.net/tag/roboteq)
