@@ -103,7 +103,9 @@ anything goes wrong, just pull the external power. Thinking a 12V 5A wall wart w
 
 ![](pics/buttons-1.jpg)
 
-![](pics/bottons-2.jpg)
+![](pics/buttons-2.jpg)
+
+We could tie these to power up or reset the R2 electronics
 
 ## Motors
 
