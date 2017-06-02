@@ -44,6 +44,14 @@ does and put in a slip ring was beyond their capabilities. We are getting a 22mm
 more than enough for power and data. The quetion will be reliability and construction
 of said ring.
 
+## Data
+
+![](pics/r2d2-data.png)
+
+## Software
+
+TBD
+
 ## Power
 
 ![](pics/R2-D2-Power.png)
