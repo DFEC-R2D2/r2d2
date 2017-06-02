@@ -1,6 +1,6 @@
 # Pololu Simple Motor Controller (SMC)
 
-[link](https://www.pololu.com/product/1373)
+[Pololu SMC product link](https://www.pololu.com/product/1373)
 
 ![](smc.jpg)
 
@@ -8,6 +8,6 @@
 
 ![](smc-io.jpg)
 
-![](smc-wiriing.jpg)
+![](smc-wiring.jpg)
 
 [manual](simple_motor_controllers.pdf)

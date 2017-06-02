@@ -8,13 +8,21 @@
 
 ### Doors
 
-![](dome-door.jpg)
+![](dome-hinges.jpg)
+
+![](carbon-fiber-doors.jpg)
+
+![](dome-doors.jpg)
+
+![](dome-doors-2.jpg)
 
 Shouldn't be too hard ... hindges, servos, etc.
 
 ### Parascope
 
 ![](parascope.jpg)
+
+![](parascope-2.jpg)
 
 Actually having it extend/retract and maybe do something cool.
 
@@ -32,21 +40,21 @@ thing if you could make the lights mean something. Otherwise, random blinking is
 
 Previous design didn't use the dome for anything. Apparently doing what everyone else
 does and put in a slip ring was beyond their capabilities. We are getting a 22mm 12 wire
-(2A per wire) ring from [Adafruit](https://www.adafruit.com/product/1196) which should be 
-more than enough for power and data. The quetion will be reliability and construction 
+(2A per wire) ring from [Adafruit](https://www.adafruit.com/product/1196) which should be
+more than enough for power and data. The quetion will be reliability and construction
 of said ring.
 
 ## Power
 
 ![](R2-D2-Power.png)
 
-Use automotive relays to control power distribution. Basically hook them up 
+Use automotive relays to control power distribution. Basically hook them up
 such that when 12V is attached for charging, they automatically disconnect the
 batteries from the motors/robot and attach them to the charger.
 
 Since all of the batteries are attached to the charging port, there is a charging
 switch (manually operated) that a user must move to determine which battery will
-be charged. This could be replaced with a circuit that measured the voltage of 
+be charged. This could be replaced with a circuit that measured the voltage of
 each battery and determined which needed to be charged ... but let's start simple
 first.
 
@@ -54,7 +62,8 @@ first.
 
 The relays operate on 12V and can handle between 30A-40A depending on the type. They have 5 inputs:
 
-![](5-pin-automotive-type-12volt-40-amp-relay.jpg)
+![](automotive relay.jpg)
+![](relay.jpg)
 
 - **Switch:** When 12V is applied across nins 85 and 86, a magnetic field is created and the relay switches from NC to NO path
 - **Normally Closed (NC):** pins 30 and 87a are the default current path
@@ -90,12 +99,30 @@ and maybe just the dome/periscope motors. In this configuration, the emergency s
 wouldn't work on the dome/periscope motors (remember the legs *are* disabled), but if
 anything goes wrong, just pull the external power. Thinking a 12V 5A wall wart would work.
 
+## Human Machine Interface
+
+![](buttons-1.jpg)
+
+![](bottons-2.jpg)
+
 ## Motors
 
 Re-selecting the Motor Controller, since it appears no engineering was done to select the
 very expensive one we currently have.
 
 Initial analysis is [here](motors.ipynb)
+
+# How Ours Should Look
+
+![](neat.jpg)
+
+![](front-speakers.jpg)
+
+![](internal-tray.jpg)
+
+## Other Layouts
+
+![](wireing-diagram.jpg)
 
 # Useful Links
 
