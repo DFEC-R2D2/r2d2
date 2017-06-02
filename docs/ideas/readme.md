@@ -8,27 +8,27 @@
 
 ### Doors
 
-![](dome-hinges.jpg)
+![](pics/dome-hinges.jpg)
 
-![](carbon-fiber-doors.jpg)
+![](pics/carbon-fiber-doors.jpg)
 
-![](dome-doors.jpg)
+![](pics/dome-doors.jpg)
 
-![](dome-doors-2.jpg)
+![](pics/dome-doors-2.jpg)
 
 Shouldn't be too hard ... hindges, servos, etc.
 
 ### Parascope
 
-![](parascope.jpg)
+![](pics/parascope.jpg)
 
-![](parascope-2.jpg)
+![](pics/parascope-2.jpg)
 
 Actually having it extend/retract and maybe do something cool.
 
 ### Lights
 
-![](dome_lights.jpg)
+![](pics/dome_lights.jpg)
 
 Would like to do the lights for R2. There are all kinds of kits or do-it-yourself. Leaning
 towards simple LED matricies with I2C comm. Would be a great human-machine-interface
@@ -36,7 +36,7 @@ thing if you could make the lights mean something. Otherwise, random blinking is
 
 ### Slip Ring
 
-![](slip_ring.jpg)
+![](pics/slip_ring.jpg)
 
 Previous design didn't use the dome for anything. Apparently doing what everyone else
 does and put in a slip ring was beyond their capabilities. We are getting a 22mm 12 wire
@@ -46,7 +46,7 @@ of said ring.
 
 ## Power
 
-![](R2-D2-Power.png)
+![](pics/R2-D2-Power.png)
 
 Use automotive relays to control power distribution. Basically hook them up
 such that when 12V is attached for charging, they automatically disconnect the
@@ -62,8 +62,8 @@ first.
 
 The relays operate on 12V and can handle between 30A-40A depending on the type. They have 5 inputs:
 
-![](automotive relay.jpg)
-![](relay.jpg)
+![](pics/automotive relay.jpg)
+![](pics/relay.jpg)
 
 - **Switch:** When 12V is applied across nins 85 and 86, a magnetic field is created and the relay switches from NC to NO path
 - **Normally Closed (NC):** pins 30 and 87a are the default current path
@@ -82,7 +82,7 @@ and the added complexity that went along with that.
 
 ### Protection
 
-![](safety_switch.jpg)
+![](pics/safety_switch.jpg)
 
 Add a real emergency kill switch that cuts power to the motors. Prefer not to kill power to
 the computer (typically not a good idea), plus, no one can get hurt by a raspberry pi.
@@ -101,9 +101,9 @@ anything goes wrong, just pull the external power. Thinking a 12V 5A wall wart w
 
 ## Human Machine Interface
 
-![](buttons-1.jpg)
+![](pics/buttons-1.jpg)
 
-![](bottons-2.jpg)
+![](pics/bottons-2.jpg)
 
 ## Motors
 
@@ -114,15 +114,15 @@ Initial analysis is [here](motors.ipynb)
 
 # How Ours Should Look
 
-![](neat.jpg)
+![](pics/neat.jpg)
 
-![](front-speakers.jpg)
+![](pics/front-speakers.jpg)
 
-![](internal-tray.jpg)
+![](pics/internal-tray.jpg)
 
 ## Other Layouts
 
-![](wireing-diagram.jpg)
+![](pics/wireing-diagram.jpg)
 
 # Useful Links
 
