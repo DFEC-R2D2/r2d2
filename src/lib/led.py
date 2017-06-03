@@ -4,19 +4,21 @@ from __future__ import print_function
 from time import sleep
 import numpy as np
 from Adafruit_LED_Backpack import Matrix8x8
-from pygecko import ZmqClass as zmq
+# from pygecko import ZmqClass as zmq
 # from pygecko import Messages as Msg
-import multiprocessing as mp
+# import multiprocessing as mp
 
 
-class LEDDisplay(mp.Process):
+# class LEDDisplay(mp.Process):
+class LEDDisplay(object):
 	"""
 	This class
 	"""
-	def __init__(self, host=('0.0.0.0', 9000), delay=1):
-		mp.Process.__init__(self)
+	# def __init__(self, host=('0.0.0.0', 9000), delay=1):
+	def __init__(self, i2c_addr=0x70, delay=1):
+		# mp.Process.__init__(self)
 		self.delay = delay
-		self.display = Matrix8x8.Matrix8x8()
+		self.display = Matrix8x8.Matrix8x8(i2c_addr)
 		self.display.begin()
 		self.display.clear()
 
@@ -25,7 +27,7 @@ class LEDDisplay(mp.Process):
 		for i in [0, 1, 2, 3, 4, 5, 6, 7]:
 			self.im.append(np.random.randint(0, 2, (8, 8)))
 
-		self.sub = zmq.Sub(connect_to=host)
+		# self.sub = zmq.Sub(connect_to=host)
 
 	def __del__(self):
 		self.display.clear()
@@ -51,13 +53,13 @@ class LEDDisplay(mp.Process):
 				sleep(self.delay)
 
 
-if __name__ == "__main__":
-	led = LEDDisplay()
-
-	try:
-		led.start()
-		led.join()
-
-	except KeyboardInterrupt:
-		print('<<<<<<<< keyboard >>>>>>>>>>>')
-		led.terminate()
+# if __name__ == "__main__":
+# 	led = LEDDisplay()
+#
+# 	try:
+# 		led.run()
+# 		# led.join()
+#
+# 	except KeyboardInterrupt:
+# 		print('<<<<<<<< keyboard >>>>>>>>>>>')
+# 		led.terminate()

@@ -17,6 +17,33 @@ net = {
 	'vision': ('0.0.0.0', 9003)
 }
 
+"""
+i2c:
+	- servos
+	- leds
+	- imu
+
+spi:
+	- ADC:
+		- current
+		- voltage
+
+camera
+
+i2s:
+	- microphone
+	- audio
+
+control:
+	- dome motors
+	- leg motors
+	- wheel encoders
+	- joystick
+
+webserver:
+	- status
+"""
+
 
 def main():
 	for k, v in net.items():
