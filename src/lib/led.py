@@ -6,8 +6,12 @@ import numpy as np
 from Adafruit_LED_Backpack.Matrix8x8 import Matrix8x8
 from Adafruit_LED_Backpack.BicolorMatrix8x8 import BicolorMatrix8x8
 from Adafruit_LED_Backpack.BicolorMatrix8x8 import RED, GREEN
-# import multiprocessing as mp
-# import smbus2 as smbus
+import os
+
+# OFF = 0
+# GREEN = 1
+# RED = 2
+# YELLOW = 3
 
 
 class LEDDisplay(object):
@@ -19,35 +23,23 @@ class LEDDisplay(object):
 
 	def __init__(self, i2c_addr=0x70, led_type=0):
 		# self.delay = delay
+		self.im = []
 		if led_type == self.MONO:
-			# sm = smbus.SMBus(1)
+			limit = 2
 			self.display = Matrix8x8(address=i2c_addr)
-
-			# create random images
-			self.im = []
-			for i in [0, 1, 2, 3, 4, 5, 6, 7]:
-				self.im.append(np.random.randint(0, 2, (8, 8)))
-
 		elif led_type == self.BI:
+			limit = 4
 			self.display = BicolorMatrix8x8(address=i2c_addr)
-
-			# create random images
-			self.im = []
-			for i in [0, 1, 2, 3, 4, 5, 6, 7]:
-				self.im.append(np.random.randint(0, 4, (8, 8)))
-
 		else:
 			raise Exception('Invalid LEDDisplay')
+
+		for i in [0, 1, 2, 3, 4, 5, 6, 7]:
+			self.im.append(np.random.randint(0, limit, (8, 8)))
 
 		self.led_type = led_type
 
 		self.display.begin()
 		self.display.clear()
-
-		# create random images
-		self.im = []
-		for i in [0, 1, 2, 3, 4, 5, 6, 7]:
-			self.im.append(np.random.randint(0, 2, (8, 8)))
 
 		self.next = 0
 
@@ -70,6 +62,7 @@ class LEDDisplay(object):
 				# Ignore out of bounds pixels.
 				return
 			# Set green LED based on 1st bit in value.
+			# print('color', color)
 			self.display.set_led(y * 16 + x, 1 if color & GREEN > 0 else 0)
 			# Set red LED based on 2nd bit in value.
 			self.display.set_led(y * 16 + x + 8, 1 if color & RED > 0 else 0)
@@ -82,13 +75,38 @@ class LEDDisplay(object):
 
 		self.display._device.writeList(0, self.display.buffer)
 
-	def update(self):
-		im = self.im[self.next]
-		self.displaySet(im)
+	def setSolid(self, color=None):
+		if color is None:
+			self.display.buffer = bytearray([0xff]*16)
+		else:
+			g = 0xff if color & GREEN > 0 else 0
+			r = 0xff if color & RED > 0 else 0
+			self.display.buffer = bytearray([g, r] * 8)
 
-		self.next += 1
-		if self.next == len(self.im):
-			self.next = 0
+		self.write()
+
+	def setRandom(self):
+		self.display.buffer = bytearray(os.urandom(16))
+		self.display._device.writeList(0, self.display.buffer)
+
+	def update(self):
+		# im = self.im[self.next]
+		# self.displaySet(im)
+		if self.led_type == self.BI:
+			self.setSolid(self.next)
+			self.next += 1
+			if self.next == 4:
+				self.next = 0
+		else:
+			self.setRandom()
+			# self.setSolid()
+
+		# self.next += 1
+		# if self.next == len(self.im):
+		# 	self.next = 0
+
+	def write(self):
+		self.display._device.writeList(0, self.display.buffer)
 
 
 class LogicFunctionDisplay(object):
@@ -99,7 +117,6 @@ class LogicFunctionDisplay(object):
 	BI = 1
 
 	def __init__(self, led_addrs, led_type=0):
-		# mp.Process.__init__(self)
 		self.leds = []
 		for addr in led_addrs:
 			if led_type == self.MONO:
@@ -112,9 +129,14 @@ class LogicFunctionDisplay(object):
 			self.leds.append(led)
 
 	def update(self):
-		# while True:
 		for led in self.leds:
 			led.update()
+
+	def setBrightness(self, bright):
+		if 0 > bright > 15:
+			return
+		for led in self.leds:
+			led.display.set_brightness(bright)
 
 
 # if __name__ == "__main__":
