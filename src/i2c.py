@@ -28,11 +28,11 @@ class I2C(mp.Process):
 def main():
 	print('hello')
 
-	status = LogicFunctionDisplay([0x70], 1)
+	status = LogicFunctionDisplay([0x70], 1)  # set this to bi-color
 	psf = LogicFunctionDisplay([0x71, 0x72])
 	psb = LogicFunctionDisplay([0x73, 0x74, 0x75])
 
-	# psb.setBrightness(7)
+	# psb.setBrightness(7)  # can be a value between [off] 0-15 [brightest]
 
 	try:
 		while True:
