@@ -9,7 +9,7 @@ import pyaudio
 # import sys
 import os
 from subprocess import Popen
-import audioop
+import audioop  # rms audio
 import time
 import random
 import string

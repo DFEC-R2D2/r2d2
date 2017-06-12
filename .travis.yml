@@ -55,7 +55,7 @@ env:
 install:
     - ./install-opencv.sh
     - pip install -U pip setuptools wheel
-    - pip install fake_rpi build_utils
+    - pip install -r requirements.txt
     - pip list
     # - pip install .
 

@@ -1,0 +1,5 @@
+pysabertooth
+smc
+smbus2
+fake_rpi
+PySDL2
