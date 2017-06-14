@@ -73,3 +73,21 @@ The software architecture follows a simple ROS like publisher/subscriber archite
     1. All mechanical drawings produced
     1. All budges: power and weight
     1. All code (both commented and saved in the git repository)
+
+
+## Software
+
+The following libraries were developed for this:
+
+- [ttastromech](https://pypi.python.org/pypi/ttastromech)
+- [smc](https://pypi.python.org/pypi/smc)
+- [pysabertooth](https://pypi.python.org/pypi/pysabertooth)
+
+The following are used:
+
+- [pygecko](https://pypi.python.org/pypi/pygecko)
+- [mote](https://github.com/MomsFriendlyRobotCompany/mote)
+- [fake_rpi](https://pypi.python.org/pypi/fake-rpi)
+- [opencvutils](https://pypi.python.org/pypi/opencvutils)
+- [nxp_imu](https://pypi.python.org/pypi/nxp-imu)
+- [mcp3208](https://pypi.python.org/pypi/mcp3208)
