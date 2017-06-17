@@ -1,0 +1,84 @@
+// This Arduino is used to control the LCD. Initially it was used to test my sonar/LIDAR subsystem. The intended final purpose of the LCD is to display other data and information of R2D2 using a menu system. 
+// include the library code:
+#include <LiquidCrystal.h>
+
+// initialize the library with the numbers of the interface pins
+LiquidCrystal lcd(12, 11, 45, 43, 41, 39);
+int right_sig = 6;
+int mid_sig = 5;
+int left_sig = 7;
+int all = 24;
+void setup() {
+  Serial.begin(9600);
+  // set up the LCD's number of columns and rows:
+  lcd.begin(20, 4);
+  // Print a message to the LCD.
+  pinMode(right_sig,INPUT);
+  pinMode(mid_sig,INPUT);
+  pinMode(left_sig,INPUT);
+  pinMode(all,INPUT);
+  // Arduino hardware is a bit finicky. The pullup resistor must be used because if the static readings on the pin fluctuate intensely. Also, if all pins are pulled down, the arduino 
+  // reads as though none of them are pulled down and the pullup resistor overrides the active low signals. This is why I added a separate "all" signal.
+  digitalWrite(right_sig,HIGH);
+  digitalWrite(mid_sig,HIGH);
+  digitalWrite(left_sig,HIGH);
+  digitalWrite(all,HIGH);
+  // Write low signal to one pin on this line so it can start working properly. For some reason, it needs to read something besides "not all" to start working!
+  // Add in sleeper as well? 
+}
+
+void loop() {
+  int val_left = digitalRead(left_sig);
+  int val_mid = digitalRead(mid_sig);
+  int val_right = digitalRead(right_sig);
+  int val_all = digitalRead(all);
+  
+  // Put in array loop?
+  // These values are printed to the serial line of Arduino for troubleshooting purposes, not the LCD. 
+  Serial.print("ALL ");
+  Serial.println(val_all);
+  Serial.print("LEFT ");
+  Serial.println(val_left);
+  Serial.print("MID ");
+  Serial.println(val_mid);
+  Serial.print("RIGHT ");
+  Serial.println(val_right);
+  Serial.println();
+  delay(1000); // Can take this line out for the LCD to be more responsive. 
+
+  // The rest of the code is reading the active low pins and writing to the LCD based on which values are low. 
+  if(!val_all){
+    lcd.setCursor(0,0);
+    lcd.print("LEFT");
+    lcd.setCursor(0,1);
+    lcd.print("MID");
+    lcd.setCursor(0,2);
+    lcd.print("RIGHT");
+  }
+  
+  else{
+    lcd.setCursor(0,0);
+    // Active low due to needing a pullup resistor. 
+    if(!val_left){
+      lcd.print("LEFT");
+    }
+    else{
+      lcd.print("    ");
+    }
+    lcd.setCursor(0,1);
+    if(!val_mid){
+      lcd.print("MID");
+    }
+    else{
+      lcd.print("   ");
+    }
+    lcd.setCursor(0,2);
+    if(!val_right){
+      lcd.print("RIGHT");
+    }
+    else{
+      lcd.print("     ");
+    }
+  }
+  
+}

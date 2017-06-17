@@ -1,9 +1,0 @@
-def audioPlayback():
-	import vlc
-	import time
-	p=vlc.MediaPlayer("/home/pi/bunnyVid.mp4")
-	p.play()
-	time.sleep(15)
-
-
-	p.stop()

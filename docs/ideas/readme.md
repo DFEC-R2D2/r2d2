@@ -1,4 +1,4 @@
-# Ideas
+# Ideas - old
 
 ## Under the Dome
 
@@ -16,7 +16,7 @@
 
 ![](pics/dome-doors-2.jpg)
 
-Shouldn't be too hard ... hindges, servos, etc.
+Shouldn't be too hard ... hinges, servos, etc.
 
 ### Parascope
 
@@ -31,7 +31,7 @@ Actually having it extend/retract and maybe do something cool.
 ![](pics/dome_lights.jpg)
 
 Would like to do the lights for R2. There are all kinds of kits or do-it-yourself. Leaning
-towards simple LED matricies with I2C comm. Would be a great human-machine-interface
+towards simple LED matrices with I2C comm. Would be a great human-machine-interface
 thing if you could make the lights mean something. Otherwise, random blinking is fine.
 
 ### Slip Ring
@@ -41,16 +41,12 @@ thing if you could make the lights mean something. Otherwise, random blinking is
 Previous design didn't use the dome for anything. Apparently doing what everyone else
 does and put in a slip ring was beyond their capabilities. We are getting a 22mm 12 wire
 (2A per wire) ring from [Adafruit](https://www.adafruit.com/product/1196) which should be
-more than enough for power and data. The quetion will be reliability and construction
+more than enough for power and data. The question will be reliability and construction
 of said ring.
 
 ## Data
 
 ![](pics/r2d2-data.png)
-
-## Software
-
-TBD
 
 ## Power
 
@@ -73,14 +69,14 @@ The relays operate on 12V and can handle between 30A-40A depending on the type. 
 ![](pics/automotive relay.jpg)
 ![](pics/relay.jpg)
 
-- **Switch:** When 12V is applied across nins 85 and 86, a magnetic field is created and the relay switches from NC to NO path
+- **Switch:** When 12V is applied across pins 85 and 86, a magnetic field is created and the relay switches from NC to NO path
 - **Normally Closed (NC):** pins 30 and 87a are the default current path
 - **Normally Open (NO):** pins 30 and 87 are the alternate current path
 
 Some good references on relays:
 
 - [How automotive relays work](https://www.youtube.com/watch?v=UAeKTlieYhw)
-- [Explaination of different relay types](http://www.12voltplanet.co.uk/relay-guide.html)
+- [Explanation of different relay types](http://www.12voltplanet.co.uk/relay-guide.html)
 
 ### Batteries
 
@@ -96,7 +92,7 @@ Add a real emergency kill switch that cuts power to the motors. Prefer not to ki
 the computer (typically not a good idea), plus, no one can get hurt by a raspberry pi.
 
 The fuses are based on the last design. Not sure how much current is actually needed by the
-leg motors nore what the continous discharge rate of the selected batteries are.
+leg motors nor what the continuous discharge rate of the selected batteries are.
 All of the fuses will have to be properly sized.
 
 ### External Power

@@ -127,7 +127,3 @@ Initial analysis is [here](motors.ipynb)
 ## Other Layouts
 
 ![](pics/wireing-diagram.jpg)
-
-# Useful Links
-
-- [www.artoo-detoo.net](http://www.artoo-detoo.net/tag/roboteq)
