@@ -26,6 +26,7 @@ class I2C_HW(mp.Process):
 		self.servos = {}
 		self.servos['door0'] = Servo(0)
 		self.servos['door1'] = Servo(1)
+		self.servos['test'] = Servo(7)
 
 		while True:
 			status.update()

@@ -21,16 +21,16 @@ def main():
 
 	try:
 		s = Sounds(net['sounds'])
-		# led = LEDDisplay()
+		led = LEDDisplay()
 		# js = Joystick(net['joystick'])
 		# ss = SphinxServer()
 
 		s.start()
-		# led.start()
+		led.start()
 		# js.start()
 
 		s.join()
-		# led.join()
+		led.join()
 		# js.join()
 
 	except KeyboardInterrupt:

@@ -11,19 +11,19 @@ This repo documents the progress of the R2-D2 design for the 2017-2018 class yea
 
 ### Power
 
-The power system is modelled around a common 12V system. Relays are used to route power for emergency stop, charging, or other reasons.
+The power system is modeled around a common 12V system. Relays are used to route power for emergency stop, charging, or other reasons.
 
 ![](pics/design/R2-D2-Power.png)
 
 ### Data
 
-The system data shows the wiring between the pi and all of the sensors and effectors. Most of the communications operates at 3.3v, however, there is a USB serial that operates at 5v (5V TTL). The pi uses all of the buses available to it: I2C at 100 Hz, SPI, and USB. The PWM to drive the servos is off loaded to a hardware servo controller board. Similarly, the PWM which drives the motors is offloaded to 2 different motor controllers (Sabertoth and SMC). 
+The system data shows the wiring between the pi and all of the sensors and effectors. Most of the communications operates at 3.3v, however, there is a USB serial that operates at 5v (5V TTL). The pi uses all of the buses available to it: I2C at 100 Hz, SPI, and USB. The PWM to drive the servos is off loaded to a hardware servo controller board. Similarly, the PWM which drives the motors is offloaded to 2 different motor controllers (Sabertooth and SMC).
 
 ![](pics/design/r2d2-data.png)
 
 ### Software
 
-The software architecture follows a simple ROS like publisher/subscriber architecture. The popular [Zero MQ](http://zeromq.org/) (zmq) is used for the pub/sub. Publishers publish data to topics which allow subscribers to get the correct data they want, because they subscribe to a topic. For example, if I (a subscriber) want to get commands for the robot leg, I could subscribe to *cmd*. The data types passed along the topics are listed in the brackets. Thus for commands, it uses a message format called *Twist*. [PyGecko](https://pypi.python.org/pypi/pygecko) library is used to neatly wrap zmq and serialize/deserialize the messages. The messages, like *Twist* are directly modelled after [ROS message formats](http://wiki.ros.org/common_msgs). Besides this messaging architecture, nothing else from ROS is used.
+The software architecture follows a simple ROS like publisher/subscriber architecture. The popular [Zero MQ](http://zeromq.org/) (zmq) is used for the pub/sub. Publishers publish data to topics which allow subscribers to get the correct data they want, because they subscribe to a topic. For example, if I (a subscriber) want to get commands for the robot leg, I could subscribe to *cmd*. The data types passed along the topics are listed in the brackets. Thus for commands, it uses a message format called *Twist*. [PyGecko](https://pypi.python.org/pypi/pygecko) library is used to neatly wrap zmq and serialize/deserialize the messages. The messages, like *Twist* are directly modeled after [ROS message formats](http://wiki.ros.org/common_msgs). Besides this messaging architecture, nothing else from ROS is used.
 
 ![](pics/design/r2d2-sw.png)
 
@@ -36,7 +36,7 @@ The software architecture follows a simple ROS like publisher/subscriber archite
     1. *standby* [threshold] - This is the default boot up mode and charging mode for R2. In this mode, not motion commands are excepted. Under the following situations, R2 will automatically switch to this mode:
         1. charging: R2 shall switch to standby and remain in standby until charging power is disconnected
         1.  ... maybe a diagram in stead???
-				
+
 2. When the emergency stop (EMS) button is pressed, R2 shall stop with no power going to all motors, but all electronics shall continue to operate. The EMS shall be mounted where R2's inhibitor switch is located in Episode IV.
 
 3. R2's sensor suite shall allow:
@@ -48,7 +48,7 @@ The software architecture follows a simple ROS like publisher/subscriber archite
     1. [objective] Record audio for speech-to-text processing
     1. Capture video for on-board processing as needed and streaming (mjpeg) to any standards compliant browser
     1. [objective] Measure leg wheel rotations and process data to determine distance travelled (odometry)
-    1. [objective] R2 shall sense stairs and drop-offs (or absence of floor) 360 degress around it along the floor plane
+    1. [objective] R2 shall sense stairs and drop-offs (or absence of floor) 360 degrees around it along the floor plane
     1. [objective] R2 shall sense obstacles 360 degrees around it along the floor plane
     1. TBD
 
