@@ -63,6 +63,7 @@ class Sounds(mp.Process):
 
 		# self.audio_player.play('clips/' + self.db['faith'])
 
+		print('------start--------')
 		while True:
 			topic, msg = self.sub.recv()
 			print('msg?')
