@@ -3,10 +3,30 @@
 from __future__ import print_function
 from time import sleep
 import numpy as np
-from Adafruit_LED_Backpack.Matrix8x8 import Matrix8x8
-from Adafruit_LED_Backpack.BicolorMatrix8x8 import BicolorMatrix8x8
-from Adafruit_LED_Backpack.BicolorMatrix8x8 import RED, GREEN
 import os
+
+try:
+	from Adafruit_LED_Backpack.Matrix8x8 import Matrix8x8
+	from Adafruit_LED_Backpack.BicolorMatrix8x8 import BicolorMatrix8x8
+	from Adafruit_LED_Backpack.BicolorMatrix8x8 import RED, GREEN
+except ImportError:
+	class fake_i2c(object):
+		buffer = []
+		def __init__(self, **kwargs): pass
+		def set_led(self, a, b, c): pass
+		def set_pixel(self, a, b, c): pass
+		def clear(self): pass
+		def writeList(self, a, b): pass
+		def begin(self): pass
+		def start(self): pass
+
+	class Matrix8x8(fake_i2c):
+		_device = fake_i2c()
+		def __init__(self, **kwargs): pass
+
+	class BicolorMatrix8x8(fake_i2c):
+		def __init__(self, **kwargs): pass
+
 
 # OFF = 0
 # GREEN = 1

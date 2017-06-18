@@ -6,62 +6,32 @@ from __future__ import division
 # from time import sleep
 from Sounds import Sounds
 # from Speech import SphinxServer
-from led import LEDDisplay
-from joystick import Joystick
-
-
-net = {
-	'joystick': ('0.0.0.0', 9000),
-	'sounds': ('0.0.0.0', 9001),
-	'speech': ('0.0.0.0', 9002),
-	'vision': ('0.0.0.0', 9003)
-}
-
-"""
-i2c:
-	- servos
-	- leds
-	- imu
-
-spi:
-	- ADC:
-		- current
-		- voltage
-
-camera
-
-i2s:
-	- microphone
-	- audio
-
-control:
-	- dome motors
-	- leg motors
-	- wheel encoders
-	- joystick
-
-webserver:
-	- status
-"""
+# from lib.led import LEDDisplay
+# from joystick import Joystick
+from pygecko import FileStorage
 
 
 def main():
-	for k, v in net.items():
-		print('process:', k, v)
+	fs = FileStorage()
+	fs.readJson("net.json")
+	net = fs.db
+
+	# for k, v in net.items():
+	# 	print('process {} pub/sub at {}:{}'.format(k, v[0], v[1]))
 
 	try:
-		s = Sounds()
-		led = LEDDisplay()
-		js = Joystick(net['joystick'])
+		s = Sounds(net['sounds'])
+		# led = LEDDisplay()
+		# js = Joystick(net['joystick'])
 		# ss = SphinxServer()
 
 		s.start()
-		led.start()
-		js.start()
+		# led.start()
+		# js.start()
 
 		s.join()
-		led.join()
-		js.join()
+		# led.join()
+		# js.join()
 
 	except KeyboardInterrupt:
 		print('<<<<<<<< keyboard >>>>>>>>>>>')

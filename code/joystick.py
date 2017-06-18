@@ -15,6 +15,7 @@ from __future__ import division
 from __future__ import print_function
 
 try:
+	# brew install sdl2
 	import sdl2
 except:
 	print('You must install SLD2 library')
