@@ -3,53 +3,109 @@
 from __future__ import division
 from __future__ import print_function
 from lib.servo import Servo
-# from pygecko import ZmqClass as zmq
+from pygecko import ZmqClass as zmq
+from pygecko import Messages as Msg
 from lib.led import LogicFunctionDisplay
-import multiprocessing as mp
+# import multiprocessing as mp
 import time
 from nxp_imu import IMU
 
 
-class I2C_HW(mp.Process):
-	def __init__(self):
-		mp.Process.__init__(self)
+# class I2C_HW(mp.Process):
+# 	def __init__(self):
+# 		mp.Process.__init__(self)
+#
+# 	def __del__(self):
+# 		pass
+#
+# 	def run(self):
+# 		status = LogicFunctionDisplay([0x70], 1)
+# 		psf = LogicFunctionDisplay([0x71, 0x72])
+# 		psb = LogicFunctionDisplay([0x73, 0x74, 0x75])
+# 		# psb.setBrightness(7)  # can be a value between [off] 0-15 [brightest]
+#
+# 		self.imu = IMU()
+#
+# 		# create servos
+# 		self.servos = {}
+# 		self.servos['door0'] = Servo(0)
+# 		self.servos['door1'] = Servo(1)
+# 		self.servos['test'] = Servo(7)
+#
+# 		while True:
+# 			status.update()
+# 			psf.update()
+# 			psb.update()
+# 			time.sleep(0.5)
+#
+# 			accel, mag, gyro = self.imu.get()
+#
+# 			# time.sleep(1)
 
-	def run(self):
-		status = LogicFunctionDisplay([0x70], 1)
-		psf = LogicFunctionDisplay([0x71, 0x72])
-		psb = LogicFunctionDisplay([0x73, 0x74, 0x75])
-		# psb.setBrightness(7)  # can be a value between [off] 0-15 [brightest]
+"""
+servo msg {
+	servo: name
+	angle: 0-180
+}
+"""
 
-		self.imu = IMU()
 
-		# create servos
-		self.servos = {}
-		self.servos['door0'] = Servo(0)
-		self.servos['door1'] = Servo(1)
-		self.servos['test'] = Servo(7)
+def HW_Func():
+	status = LogicFunctionDisplay([0x70], 1)
+	psf = LogicFunctionDisplay([0x71, 0x72])
+	psb = LogicFunctionDisplay([0x73, 0x74, 0x75])
+	# psb.setBrightness(7)  # can be a value between [off] 0-15 [brightest]
 
-		while True:
-			status.update()
-			psf.update()
-			psb.update()
-			time.sleep(0.5)
+	imu = IMU()  # inerial measurement unit
 
-			accel, mag, gyro = self.imu.get()
+	sub = zmq.Sub(['servos'], ('localhost', 9004))
 
-			time.sleep(1)
+	# you can monitor the publishing of this with:
+	# topic_echo.py localhost 9005 imu
+	pub = zmq.Pub(('localhost', 9005))
+
+	# create servos
+	servos = {}
+	servos['door0'] = Servo(0)
+	servos['door1'] = Servo(1)
+	servos['door2'] = Servo(2)
+	servos['door3'] = Servo(3)
+	servos['door4'] = Servo(4)
+	servos['test'] = Servo(7)
+
+	while True:
+		status.update()
+		psf.update()
+		psb.update()
+		time.sleep(0.5)
+
+		accel, mag, gyro = imu.get()
+		msg = Msg.IMU()
+		msg.linear_acceleration.set(*accel)
+		# msg.angular_velocity.set(*gyro)
+		msg.orientation.set(1, 0, 0, 0)
+		pub.pub('imu', msg)
+
+		topic, msg = sub.recv()
+
+		if msg:
+			if topic == 'servos':
+				print('Topic, Msg:', topic, msg)
+				angle = msg['angle']
+				name = msg['name']
+				servos[name].angle = angle
+
+		time.sleep(0.5)
+
+
 
 
 def main():
-	print('hello')
-
-	i2c = I2C_HW()
 	try:
-		i2c.start()
+		HW_Func()
 
 	except KeyboardInterrupt:
-		print('<<<<<<<< keyboard >>>>>>>>>>>')
-		i2c.join()
-		i2c.terminate()
+		print('hw, bye ....')
 
 
 if __name__ == "__main__":

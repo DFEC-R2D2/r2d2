@@ -9,6 +9,7 @@ from Sounds import Sounds
 # from lib.led import LEDDisplay
 # from joystick import Joystick
 from pygecko import FileStorage
+from hardware import I2C_HW as Hardware
 
 
 def main():
@@ -21,21 +22,24 @@ def main():
 
 	try:
 		s = Sounds(net['sounds'])
-		led = LEDDisplay()
+		hw = Hardware()
 		# js = Joystick(net['joystick'])
 		# ss = SphinxServer()
 
 		s.start()
-		led.start()
+		hw.start()
 		# js.start()
 
+		hw.join()
 		s.join()
-		led.join()
 		# js.join()
 
 	except KeyboardInterrupt:
 		print('<<<<<<<< keyboard >>>>>>>>>>>')
-		s.terminate()
+		if s.is_alive():
+			s.terminate()
+		if hw.is_alive():
+			hw.terminate()
 
 
 if __name__ == "__main__":

@@ -123,11 +123,11 @@ class Servo(PWM):
 		self.pwm.set_pwm(self.channel, 0, pulse)
 
 
-# if __name__ == "__main__":
-# 	s = Servo(8)
-# 	s.angle = 0
+if __name__ == "__main__":
+	s = Servo(7)
+	s.angle = 0
 # 	sleep(1)
 # 	s.angle = 90.0
 # 	sleep(1)
 # 	s.angle = 180.0
-# 	sleep(1)
+	sleep(1)

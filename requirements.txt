@@ -3,3 +3,12 @@ smc
 smbus2
 fake_rpi
 PySDL2
+ttastromech
+nxp_imu
+mcp3208
+Adafruit-GPIO
+Adafruit-LED-Backpack
+Adafruit-PCA9685
+Adafruit-PureIO
+pyserial
+spidev
