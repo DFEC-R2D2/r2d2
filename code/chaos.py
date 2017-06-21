@@ -45,8 +45,8 @@ class Chaos(mp.Process):
 
 
 def getnrandom(n=6):
-		char_set = string.ascii_lowercase
-		return ''.join(random.sample(char_set, n))
+	char_set = string.ascii_lowercase
+	return ''.join(random.sample(char_set, n))
 
 
 def Chaos_Func():
