@@ -88,8 +88,10 @@ def Chaos_Func():
 				msg.dict[key] = word
 				subs[key].pub(key, msg)
 			elif key == 'servos':
+				num = random.choice(range(3))
+				name = 'door{}'.format(num)
 				msg = Messages.Dictionary()
-				msg.dict['name'] = 'test'
+				msg.dict['name'] = name
 				msg.dict['angle'] = random.choice(range(30, 150, 10))
 				subs[key].pub(key, msg)
 
