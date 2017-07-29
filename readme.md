@@ -48,7 +48,7 @@ The system shall follow the transition diagram shown above with the following de
   motors are not enabled, however the dome motor is able to move. This mode is entered either by
   a software command or external power supplied to the robot which will trigger relays and automatically
   cut power to the leg motors.
-- **Autonomous:** When commanded into this mode, the robot will autonomous move and avoid obstacles
+- **Autonomous [objective]:** When commanded into this mode, the robot will autonomous move and avoid obstacles
   using its onboard sensors (TBD). When any issue arrises (i.e., motor currents exceeded, loss of 
   sensors prohibiting safe opperation, TBD) the robot will immediately go to standby mode.
 
