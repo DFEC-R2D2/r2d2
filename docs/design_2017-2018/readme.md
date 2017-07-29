@@ -12,14 +12,6 @@
 
 Shouldn't be too hard ... hindges, servos, etc.
 
-### Parascope
-
-![](pics/parascope.jpg)
-
-![](pics/parascope-2.jpg)
-
-Actually having it extend/retract and maybe do something cool.
-
 ### Lights
 
 ![](pics/dome_lights.jpg)
@@ -38,17 +30,9 @@ does and put in a slip ring was beyond their capabilities. We are getting a 22mm
 more than enough for power and data. The quetion will be reliability and construction
 of said ring.
 
-## Data
-
-![](pics/r2d2-data.png)
-
-## Software
-
-TBD
-
 ## Power
 
-![](pics/R2-D2-Power.png)
+![](../../pics/design/R2-D2-Power-v2.png)
 
 Use automotive relays to control power distribution. Basically hook them up
 such that when 12V is attached for charging, they automatically disconnect the
@@ -107,7 +91,7 @@ anything goes wrong, just pull the external power. Thinking a 12V 5A wall wart w
 
 ![](pics/buttons-2.jpg)
 
-We could tie these to power up or reset the R2 electronics
+We could tie these to power up or reset the R2 electronics or cycle through operating modes
 
 ## Motors
 
