@@ -12,9 +12,9 @@ it is delivered, is to:
 - Support internal events like: Major's Night, DF evnets, and DFEC events
 - Support external events like: conventions, STEM outreach, and recruiting events.
 
-## Architecture
+# Architecture
 
-### Power
+## Power
 
 The power system is modeled around a common 12V system. Relays are used to route power for emergency stop, charging, or other reasons.
 
@@ -23,13 +23,13 @@ The power system is modeled around a common 12V system. Relays are used to route
 Although there are mulitple batteries, they are all the same type of battery and therefore take the
 same type of charging. The battery chemestry and capacity is TBD.
 
-### Data
+## Data
 
 The system data shows the wiring between the pi and all of the sensors and effectors. Most of the communications operates at 3.3v, however, there is a USB serial that operates at 5v (5V TTL). The pi uses all of the buses available to it: I2C at 100 Hz, SPI, and USB. The PWM to drive the servos is off loaded to a hardware servo controller board. Similarly, the PWM which drives the motors is offloaded to 2 different motor controllers (Sabertooth and SMC).
 
 ![](pics/design/r2d2-data.png)
 
-### Software Operating Modes
+## Software Operating Modes
 
 ![](pics/design/r2d2_states.png)
 
@@ -52,10 +52,10 @@ The system shall follow the transition diagram shown above with the following de
   using its onboard sensors (TBD). When any issue arrises (i.e., motor currents exceeded, loss of 
   sensors prohibiting safe opperation, TBD) the robot will immediately go to standby mode.
 
-In the future, the system might be augmented to run the R2 software as a Debian service under `systemd`
-once everything works.
+The system shall be designed to run the R2 software as a Debian service under `systemd`
+once everything works. During development, this won't be implemented for safety reasons.
 
-## Requirements
+# Requirements
 
 1. [KPP] R2 shall operate safely in one of the states described above. Any loss of command or fault will
    automatically transitition the robot into Standby mode.
@@ -91,7 +91,7 @@ once everything works.
     1. Design shall be modular and any interior component shall be removable for maintenance without having to cut, unglue, de-solder, or damage the robot in any way.
 
 1. [KPP] R2 shall be returned to its proper appearance (as seen in Episode IV) with certain exceptions
-   (e.g., emergency stop button):
+   (e.g., emergency stop button) and functions:
     1. Holes in dome need to be filled in
     1. Body needs to be re-assembled and outer structure (re)painted as necessary
     1. Leg motors need to be hidden in the battery box
@@ -99,15 +99,20 @@ once everything works.
     1. Skirt needs to be attached
     1. Leg covers/decorations need to be attached
     1. Leg and dome motors need to be properly mounted
+    1. Dome rotates 360 deg
+    1. Dome doors open/close and TBD body panel doors via servos
 
 1. R2 shall produce and record telemetry for:
     1. power, current, voltage on batteries, motors, and power distribution (5V, 3.3V)
     1. camera images
     1. sensor data (TBD)
 
-1. Human Machine Interface (HMI) shall be defined for selected data and displayed/conveyed by R2
+1. Human Machine Interface (HMI):
+    1. Telemetry: HMI shall be defined for selected data and displayed/conveyed by R2
    through: web server, display, sound, dome movement, or TBD method. The meanings shall be documented
    in the user manual
+   1. [KPP] Operation: R2 shall be simple enough an 8 yr old (or RPA pilot) can drive it (Remote Controlled Mode)
+      or switch it into any other state. No command line ninja skills shall be required.
 
 1. R2 shall be fully documented:
     1. All datasheets
@@ -115,16 +120,17 @@ once everything works.
     1. All mechanical drawings produced
     1. All budges: power and weight
     1. Fault analysis of the system
+    1. All connectors/pins/interfaces need to be documented 
     1. All code (both commented and saved in the git repository)
     1. Operators manual
 
-## Software
+# Software
 
-The following libraries were developed for this:
+R2 is written primarily in python. The following libraries were developed for R2-D2:
 
-- [ttastromech](https://pypi.python.org/pypi/ttastromech)
-- [smc](https://pypi.python.org/pypi/smc)
-- [pysabertooth](https://pypi.python.org/pypi/pysabertooth)
+- [Text-to-Astromech: ttastromech](https://pypi.python.org/pypi/ttastromech)
+- [Simple Motor Controler: smc](https://pypi.python.org/pypi/smc)
+- [Sabertooth Motor Controller: pysabertooth](https://pypi.python.org/pypi/pysabertooth)
 
 The following are used:
 
