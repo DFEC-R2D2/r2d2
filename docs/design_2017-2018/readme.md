@@ -10,15 +10,8 @@
 
 ![](pics/dome-doors-2.jpg)
 
-Shouldn't be too hard ... hindges, servos, etc.
-
-### Lights
-
-![](pics/dome_lights.jpg)
-
-Would like to do the lights for R2. There are all kinds of kits or do-it-yourself. Leaning
-towards simple LED matricies with I2C comm. Would be a great human-machine-interface
-thing if you could make the lights mean something. Otherwise, random blinking is fine.
+Use servos to open/close doors. If everything is neatly setup inside (with cool
+lighting?) it would be an easy method to show off R2's insides.
 
 ### Slip Ring
 
@@ -87,16 +80,29 @@ anything goes wrong, just pull the external power. Thinking a 12V 5A wall wart w
 
 ## Human Machine Interface
 
+### Buttons
+
 ![](pics/buttons-1.jpg)
 
 ![](pics/buttons-2.jpg)
 
-We could tie these to power up or reset the R2 electronics or cycle through operating modes
+We could tie these to power up or reset the R2 electronics or cycle through operating modes.
 
-## Motors
+### Displays / Lights
 
-Re-selecting the Motor Controller, since it appears no engineering was done to select the
-very expensive one we currently have.
+![](pics/dome_lights.jpg)
+
+This would be a great human-machine-interface thing if you could make the lights mean something. 
+Otherwise, random blinking is fine.
+
+### Web Server
+
+![](pics/dashboard.png)
+
+Not hard, maybe something that displays a bunch of information. Note, the one shown above is not
+necessarily what we want, just the first example found on the interweb.
+
+## Motor Controllers
 
 Initial analysis is [here](motors.ipynb)
 
