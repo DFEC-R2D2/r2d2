@@ -102,9 +102,20 @@ Otherwise, random blinking is fine.
 Not hard, maybe something that displays a bunch of information. Note, the one shown above is not
 necessarily what we want, just the first example found on the interweb.
 
+Taking a look at [D3.js](https://github.com/d3/d3/wiki/Gallery) in the basic charts section, we
+could:
+
+- donut chart on power system
+- line chart on motor currents
+- radar chart to display 360 deg sensor info
+
 ## Motor Controllers
 
 Initial analysis is [here](motors.ipynb)
+
+## Dome Motor
+
+TBD
 
 # How Ours Should Look
 
