@@ -10,23 +10,8 @@
 
 ![](pics/dome-doors-2.jpg)
 
-Shouldn't be too hard ... hindges, servos, etc.
-
-### Parascope
-
-![](pics/parascope.jpg)
-
-![](pics/parascope-2.jpg)
-
-Actually having it extend/retract and maybe do something cool.
-
-### Lights
-
-![](pics/dome_lights.jpg)
-
-Would like to do the lights for R2. There are all kinds of kits or do-it-yourself. Leaning
-towards simple LED matricies with I2C comm. Would be a great human-machine-interface
-thing if you could make the lights mean something. Otherwise, random blinking is fine.
+Use servos to open/close doors. If everything is neatly setup inside (with cool
+lighting?) it would be an easy method to show off R2's insides.
 
 ### Slip Ring
 
@@ -38,17 +23,9 @@ does and put in a slip ring was beyond their capabilities. We are getting a 22mm
 more than enough for power and data. The quetion will be reliability and construction
 of said ring.
 
-## Data
-
-![](pics/r2d2-data.png)
-
-## Software
-
-TBD
-
 ## Power
 
-![](pics/R2-D2-Power.png)
+![](../../pics/design/R2-D2-Power-v2.png)
 
 Use automotive relays to control power distribution. Basically hook them up
 such that when 12V is attached for charging, they automatically disconnect the
@@ -103,18 +80,42 @@ anything goes wrong, just pull the external power. Thinking a 12V 5A wall wart w
 
 ## Human Machine Interface
 
+### Buttons
+
 ![](pics/buttons-1.jpg)
 
 ![](pics/buttons-2.jpg)
 
-We could tie these to power up or reset the R2 electronics
+We could tie these to power up or reset the R2 electronics or cycle through operating modes.
 
-## Motors
+### Displays / Lights
 
-Re-selecting the Motor Controller, since it appears no engineering was done to select the
-very expensive one we currently have.
+![](pics/dome_lights.jpg)
+
+This would be a great human-machine-interface thing if you could make the lights mean something. 
+Otherwise, random blinking is fine.
+
+### Web Server
+
+![](pics/dashboard.png)
+
+Not hard, maybe something that displays a bunch of information. Note, the one shown above is not
+necessarily what we want, just the first example found on the interweb.
+
+Taking a look at [D3.js](https://github.com/d3/d3/wiki/Gallery) in the basic charts section, we
+could:
+
+- donut chart on power system
+- line chart on motor currents
+- radar chart to display 360 deg sensor info
+
+## Motor Controllers
 
 Initial analysis is [here](motors.ipynb)
+
+## Dome Motor
+
+TBD
 
 # How Ours Should Look
 
