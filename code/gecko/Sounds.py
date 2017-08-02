@@ -31,7 +31,17 @@ class AudioPlayer(object):
 			raise Exception('OS is unsupported')
 
 	def set_volume(self, level):
-		pass
+		if 100 < level < 0:
+                        raise Exception('Error: volume must be between 0-100%')
+                os.system('amixer cset numid=3 {}%'.format(level))
+
+        def set_on_off(self, on=True):
+                val=None
+                if on:
+                        val = 'on'
+                else:
+                        val = 'off'
+                os.system('amixer cset numid=4 {}'.format(val))
 
 	def play(self, filename):
 		Popen('{} -q -V1 {}'.format(self.audio_player, filename), shell=True).wait()
@@ -103,6 +113,8 @@ def Sound_Func():
 	sub = zmq.Sub(['sounds', 'speak'], host)
 
 	audio_player = AudioPlayer()
+	audio_player.set_volume(15)  # volume is 0-100%
+	time.sleep(0.1)
 	print('AudioPlayer found:', audio_player.audio_player)
 
 	r2 = TTAstromech()

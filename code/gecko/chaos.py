@@ -12,36 +12,36 @@ import random
 import string
 
 
-class Chaos(mp.Process):
-	def __init__(self):
-		mp.Process.__init__(self)
-		print('CHAOS BEGINS !!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-
-		fs = FileStorage()
-		fs.readJson("net.json")
-		self.net = fs.db
-		# pprint(self.db)
-		# self.play(self.db['start'])
-
-		fs.db = {}
-		fs.readJson("clips.json")
-		self.clips = fs.db
-
-	def run(self):
-		subs = []
-		for sub in self.net:
-			ip = self.net[sub]
-			s = zmq.Pub(bind_to=(ip[0], ip[1]))
-			subs.append(s)
-			print(' >> Subscribed to:', sub, '@', ip)
-
-		while True:
-			clip = random.choice(self.clips.keys())
-			msg = Messages.Dictionary()
-			msg.dict['sound'] = clip
-			subs[1].pub('sounds', msg)
-			print('msg:', msg)
-			time.sleep(3)
+# class Chaos(mp.Process):
+# 	def __init__(self):
+# 		mp.Process.__init__(self)
+# 		print('CHAOS BEGINS !!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+# 
+# 		fs = FileStorage()
+# 		fs.readJson("net.json")
+# 		self.net = fs.db
+# 		# pprint(self.db)
+# 		# self.play(self.db['start'])
+# 
+# 		fs.db = {}
+# 		fs.readJson("clips.json")
+# 		self.clips = fs.db
+# 
+# 	def run(self):
+# 		subs = []
+# 		for sub in self.net:
+# 			ip = self.net[sub]
+# 			s = zmq.Pub(bind_to=(ip[0], ip[1]))
+# 			subs.append(s)
+# 			print(' >> Subscribed to:', sub, '@', ip)
+# 
+# 		while True:
+# 			clip = random.choice(self.clips.keys())
+# 			msg = Messages.Dictionary()
+# 			msg.dict['sound'] = clip
+# 			subs[1].pub('sounds', msg)
+# 			print('msg:', msg)
+# 			time.sleep(3)
 
 
 def getnrandom(n=6):
@@ -82,11 +82,13 @@ def Chaos_Func():
 				msg.dict['sound'] = clip
 				subs['sounds'].pub('sounds', msg)
 				# print('msg:', msg)
+				time.sleep(7)
 			elif key == 'speak':
 				word = getnrandom()
 				msg = Messages.Dictionary()
 				msg.dict[key] = word
 				subs[key].pub(key, msg)
+				time.sleep(4)
 			elif key == 'servos':
 				num = random.choice(range(3))
 				name = 'door{}'.format(num)
@@ -94,8 +96,9 @@ def Chaos_Func():
 				msg.dict['name'] = name
 				msg.dict['angle'] = random.choice(range(30, 150, 10))
 				subs[key].pub(key, msg)
-
-			time.sleep(10)
+				time.sleep(1)
+			else:
+				print('<<< Oops, unknown key:', key, '>>>')
 
 
 if __name__ == '__main__':

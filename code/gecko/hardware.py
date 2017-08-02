@@ -9,6 +9,7 @@ from lib.led import LogicFunctionDisplay
 # import multiprocessing as mp
 import time
 from nxp_imu import IMU
+from pprint import pprint
 
 
 # class I2C_HW(mp.Process):
@@ -59,6 +60,7 @@ def HW_Func():
 	imu = IMU()  # inerial measurement unit
 
 	sub = zmq.Sub(['servos'], ('localhost', 9004))
+        js_sub = zmq.Sub(['cmd'], ('localhost', 9006))
 
 	# you can monitor the publishing of this with:
 	# topic_echo.py localhost 9005 imu
@@ -71,7 +73,9 @@ def HW_Func():
 	servos['door2'] = Servo(2)
 	servos['door3'] = Servo(3)
 	servos['door4'] = Servo(4)
-	servos['test'] = Servo(7)
+	servos['js'] = Servo(7)  # this is just for demo
+
+	pprint(servos)
 
 	while True:
 		status.update()
@@ -94,8 +98,18 @@ def HW_Func():
 				angle = msg['angle']
 				name = msg['name']
 				servos[name].angle = angle
+			elif topic == 'cmd':
+                                print('<<< crap cmd in wrong place >>>')
+				
+                # this is a joystick test
+		topic, msg = js_sub.recv()
+		if msg:
+			if topic == 'cmd':
+                                print('Topic, Msg:', topic, msg)
+                                angle = 90*msg.angular.x + 90
+                                servos['js'].angle = angle
 
-		time.sleep(0.5)
+		time.sleep(0.025)
 
 
 
