@@ -4,3 +4,4 @@
 ._.*
 src/*.jpg
 code/*.wav
+node_modules
