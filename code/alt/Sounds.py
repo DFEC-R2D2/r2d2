@@ -67,7 +67,7 @@ class Sounds(object):
 		self.r2.speak('warning')
 		time.sleep(0.5)
 
-	def sound(self, topic, clip):
+	def sound(self, clip):
 		"""
 		Play an audio clip
 		"""

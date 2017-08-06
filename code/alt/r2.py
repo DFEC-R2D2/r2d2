@@ -2,8 +2,8 @@
 
 from js import Joystick
 from Sounds import Sounds
-from pysabertooth import Sabertooth
-from smc import SMC
+#from pysabertooth import Sabertooth
+#from smc import SMC
 import time
 from Hardware import Actuators, Sensors, Displays
 from pygecko import FileStorage
@@ -13,6 +13,9 @@ from multiprocessing import Process
 import random
 import string
 
+
+saber_port = '/dev/serial/by-id/usb-Dimension_Engineering_Sabertooth_2x32_16004F410010-if01'
+smc_port = '/dev/serial/by-id/usb-Pololu_Corporation_Pololu_Simple_Motor_Controller_18v7_50FF-6D06-7085-5652-2323-2267-if00'
 
 class Standby(object):
 	def __init__(self):
@@ -26,14 +29,14 @@ class RC(object):
 	def __init__(self):
 		# You might want to put some of these in a base class???
 		# these are place holders
-		self.legs_mc = Sabertooth()
-		self.dome_mc = SMC()
+		#self.legs_mc = Sabertooth()
+		#self.dome_mc = SMC()
 
 		self.sensors = Sensors()
 		self.servos = Actuators()
 		# self.logic_displays = Displays()
 
-		self.js = Joystick()
+		#self.js = Joystick()
 		self.snd = Sounds()
 
 	def __del__(self):
@@ -76,9 +79,9 @@ class Chaos(object):
 		self.servos = Actuators()
 		# self.logic_displays = Displays()
 
-		self.dome_mc = SMC()
+		#self.dome_mc = SMC()
 
-		self.js = Joystick()
+		#self.js = Joystick()
 		self.snd = Sounds()
 
 		fs = FileStorage()
@@ -93,11 +96,12 @@ class Chaos(object):
 		# self.logic_displays.update()
 
 		# read inputs
-		ps4 = self.js.get()
-		print(ps4)
+		#ps4 = self.js.get()
+		#print(ps4)
 
 		# play random clip
 		clip = random.choice(self.clips.keys())
+		print('playing:', clip)
 		self.snd.sound(clip)
 		time.sleep(5)
 
@@ -105,13 +109,15 @@ class Chaos(object):
 		char_set = string.ascii_lowercase
 		word = ''.join(random.sample(char_set, 6))
 		self.snd.speak(word)
-		time.sleep(5)
+		time.sleep(3)
 
 		# move random servo
 		num = random.choice(range(3))
 		name = 'door{}'.format(num)
-		self.servos(name, random.choice(range(30, 150, 10)))
-		time.sleep(2)
+		angle = random.choice(range(30, 150, 10))
+		print('Moving servro:', name, angle)
+		self.servos.set(name, angle)
+		time.sleep(1)
 
 		# move dome random speeds
 
@@ -139,13 +145,14 @@ class R2D2(object):
 
 	def run(self):
 		while True:
-			self.modes[self.current_mode]
-			time.sleep(0.05)
+			mode = self.modes[self.current_mode]
+			mode.loop()
+			time.sleep(0.1)
 
 			# maybe check something to see if the mode has changed?
 
 
-def Disp_Func():
+def Disp_Func2():
 	logic_displays = Displays()
 	while True:
 		logic_displays.update()
@@ -153,10 +160,13 @@ def Disp_Func():
 
 
 if __name__ == "__main__":
-	disp = Process(target=Disp_Func).start()
+	disp = Process(target=Disp_Func2).start()
+	#print('display', disp.is_alive)
+
 	bot = R2D2()
 	try:
 		bot.run()
+
 	except KeyboardInterrupt:
 		disp.join(0.1)
 		print('Bye ...')

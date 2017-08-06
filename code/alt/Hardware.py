@@ -16,7 +16,7 @@ class Displays(object):
 		self.psb = LogicFunctionDisplay([0x73, 0x74, 0x75])
 		# psb.setBrightness(7)  # can be a value between [off] 0-15 [brightest]
 
-	def upate(self):
+	def update(self):
 		self.status.update()
 		self.psf.update()
 		self.psb.update()
