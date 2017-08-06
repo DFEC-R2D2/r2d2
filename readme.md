@@ -10,7 +10,7 @@ it is delivered, is to:
 
 - Serve as an example of multi-diciplinary engineering
 - Support internal events like: Major's Night, DF evnets, and DFEC events
-- Support external events like: conventions, STEM outreach, and recruiting events.
+- Support external events like: STEM outreach and recruiting events.
 
 # Architecture
 
