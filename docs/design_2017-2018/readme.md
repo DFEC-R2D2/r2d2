@@ -41,7 +41,7 @@ first.
 
 The relays operate on 12V and can handle between 30A-40A depending on the type. They have 5 inputs:
 
-![](pics/automotive relay.jpg)
+![](pics/automotive_relay.jpg)
 ![](pics/relay.jpg)
 
 - **Switch:** When 12V is applied across nins 85 and 86, a magnetic field is created and the relay switches from NC to NO path
@@ -92,7 +92,7 @@ We could tie these to power up or reset the R2 electronics or cycle through oper
 
 ![](pics/dome_lights.jpg)
 
-This would be a great human-machine-interface thing if you could make the lights mean something. 
+This would be a great human-machine-interface thing if you could make the lights mean something.
 Otherwise, random blinking is fine.
 
 ### Web Server

@@ -18,14 +18,6 @@
 
 Shouldn't be too hard ... hinges, servos, etc.
 
-### Parascope
-
-![](pics/parascope.jpg)
-
-![](pics/parascope-2.jpg)
-
-Actually having it extend/retract and maybe do something cool.
-
 ### Lights
 
 ![](pics/dome_lights.jpg)
