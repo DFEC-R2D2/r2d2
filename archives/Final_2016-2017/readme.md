@@ -25,7 +25,7 @@
 
 - Impassable quagmire of wires/cables which led to things getting shorted out
 - Tape and hot glue literally held the thing together, but the next day, things start to
-fall off ... so much for duct tape being the greatest. Also, there is a huge mess of gorilla glue and expoxy every where making it look and feel (the whole thing is sticky) terrible
+fall off ... so much for duct tape being the greatest. Also, there is a huge mess of gorilla glue and epoxy everywhere making it look and feel (the whole thing is sticky) terrible
 - Raspberry Pi camera is shorted out after being wedged (mounted) between some aluminum
 - None of the LEDs are mounted, instead the holes are filled with tin foil (maybe it blocks the dark side's attempts at controlling R2?)
 - Wood screws are used instead of bolts and they are falling out
@@ -40,5 +40,5 @@ fall off ... so much for duct tape being the greatest. Also, there is a huge mes
     - There are no connectors anywhere, everything is soldered together or multiple wire nuts were used to connect multiple lengths of short wires together into a larger wire
     - In order to remove the motor drive, the wires to it had to be cut ... however, a couple were just twisted together and wrapped in tap (no soldering)
 - The software is written wrong (amateur at best) and incapable of being useful
-- The front wheel was never mounted, instead, some silly wheel was on it. This made R2 lean forward and very suceptable to tipping over ... which happened
-- No architectual diagrams or documentation on interfaces or software ... no clue what did what.
+- The front wheel was never mounted, instead, some silly wheel was on it. This made R2 lean forward and very susceptible to tipping over ... which happened
+- No architectural diagrams or documentation on interfaces or software ... no clue what did what.
