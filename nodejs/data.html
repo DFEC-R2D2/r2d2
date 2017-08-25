@@ -12,23 +12,39 @@
 		labels: ["left", "left center", "front left", "front", "front right", "right center", "right"],
 		datasets: [
 			{
-				label: "My First dataset",
-				fillColor: "rgba(220,220,220,0.2)",
-				strokeColor: "rgba(220,220,220,1)",
-				pointColor: "rgba(220,220,220,1)",
-				pointStrokeColor: "#fff",
-				pointHighlightFill: "#fff",
-				pointHighlightStroke: "rgba(220,220,220,1)",
+                                backgroundColor: [
+                                        'rgba(255, 99, 132, 0.8)',
+                                        'rgba(54, 162, 235, 0.8)',
+                                        'rgba(255, 206, 86, 0.8)',
+                                        'rgba(75, 192, 192, 0.8)',
+                                        'rgba(100, 100, 200, 0.8)'
+                                ],
+
+				//label: "My First dataset",
+				//fillColor: "rgba(220,220,220,0.2)",
+				//strokeColor: "rgba(220,220,220,1)",
+				//pointColor: "rgba(220,220,220,1)",
+				//pointStrokeColor: "#fff",
+				//pointHighlightFill: "#fff",
+				//pointHighlightStroke: "rgba(220,220,220,1)",
 				data: {{chartData}}
 			}
 		]
 	};
 
+        var opts = {
+                 legend: {
+                        display: false
+                 },
+        }
+
+
 	var ctx = document.getElementById("ir").getContext("2d");
 	var myLineChart = new Chart(ctx, {
 		responsive: false,
-		type: 'radar',
-		data: data
+		type: 'pie',
+		data: data,
+		options: opts
 	});
 
 	data = {
@@ -36,10 +52,10 @@
 		datasets: [
 			{
 				backgroundColor: [
-					'rgba(255, 99, 132, 0.2)',
-					'rgba(54, 162, 235, 0.2)',
-					'rgba(255, 206, 86, 0.2)',
-					'rgba(75, 192, 192, 0.2)'
+					'rgba(255, 99, 132, 0.8)',
+					'rgba(54, 162, 235, 0.8)',
+					'rgba(255, 206, 86, 0.8)',
+					'rgba(75, 192, 192, 0.8)'
 				],
 				data: [1,2,1,5]
 			}
@@ -92,11 +108,11 @@ var line = new Chart(ctx, {
   data: {
     labels: ['M', 'T', 'W', 'T', 'F', 'S', 'S'],
     datasets: [{
-      label: 'apples',
+      label: 'Power',
       data: [12, 19, 3, 17, 6, 3, 7],
       backgroundColor: "rgba(153,255,51,0.4)"
     }, {
-      label: 'oranges',
+      label: 'Current',
       data: [2, 29, 5, 5, 2, 3, 10],
       backgroundColor: "rgba(255,153,0,0.4)"
     }]

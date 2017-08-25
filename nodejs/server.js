@@ -73,7 +73,7 @@ var server = http.createServer(function(req, res) {
 		// console.log(">> data.html");
 		// make some fake data
 		var chartData = [];
-		for (var i = 0; i < 20; i++){
+		for (var i = 0; i < 5; i++){
 			chartData.push(Math.random() * 50);
 		}
 		var page = file.replace('{{chartData}}', JSON.stringify(chartData));
@@ -188,4 +188,4 @@ var server = http.createServer(function(req, res) {
 
 // launch server
 server.listen(9000);
-console.log('open http://hostname:8080');
+console.log('open http://hostname:9000');
