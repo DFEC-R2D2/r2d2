@@ -74,3 +74,9 @@ The following are used:
 - [opencvutils](https://pypi.python.org/pypi/opencvutils)
 - [nxp_imu](https://pypi.python.org/pypi/nxp-imu)
 - [mcp3208](https://pypi.python.org/pypi/mcp3208)
+
+The following was created for the purpose of R2D2's code simplicity, which combines the above codes into one python library file:
+
+- [library]
+
+The R2D2 code can be found in the directory called Final with the python file named run.py. Currently, the Raspberry Pi 3 image that we created allows R2D2 to automatically run this code when booted on. All the USB devices that are connected to the R2D2 are based on our actual model, and would need to be changed to match the serial information of the new device if you are considering making another R2D2.
