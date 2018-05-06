@@ -32,14 +32,14 @@ The system data shows the wiring between the pi and all of the sensors and effec
 
 ## Software Operating Modes
 
-![](pics/design/r2d2_states.png)
+![](Final/Diagrams/SoftwareFlowChart.jpg)
 
 The system shall follow the transition diagram shown above with the following definitions:
 
-- **Off:** 
-- **Standby:** 
-- **Remote Controlled:**
-- **Display:**
+- **Off:** The off mode of R2D2 is when R2D2 is powered off or without any power source. This means that none of the operations are possible, and R2D2 non-functional.
+- **Standby:** The standby mode of R2D2 is when R2D2 is remaining idle. None of the motors or the sensors are working in this mode. The Standby mode operates to allow users the ability to fix problems. It is the default mode upon turning R2D2 on.
+- **Remote Controlled:** The remote mode of R2D2 can be controlled through the PS4 controller. The instructions on how to connect the PS4 controller to R2D2 can be found in the operational manual. All functionalities of R2D2 is present in this mode.
+- **Display:** The display mode of R2D2 is used to showcase R2D2. This means that R2D2 is not capable of moving, because it is in display mode. The display mode will respond to people that are close to R2D2.
 
 # Statement of Work
 
