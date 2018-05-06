@@ -5,6 +5,8 @@
 
 # R2-D2 Senior Design Project
 
+#####ALL UPDATED FILES CAN BE FOUND IN THE FOLDER LABELED "FINAL"
+
 This repo documents the progress of the R2-D2 design for the 2017-2018 class year. R2-D2's purpose, once
 it is delivered, is to:
 
@@ -35,25 +37,10 @@ The system data shows the wiring between the pi and all of the sensors and effec
 
 The system shall follow the transition diagram shown above with the following definitions:
 
-- **Off:** No R2D2 software is running and the Raspberry Pi (RPi) may or may not be powered on. This is
-  not so much a designed software state so much as a reality of "off".
-- **Standby:** When R2 software is started, it will enter this state and remain until commanded to exit.
-  No motor (servos, legs, or dome) are allowed to run. This state produces and is capable of recording
-  telemetry. This state is the only state where charging will occur. When the power plug is connected,
-  the robot will change from whatever state it is in to this one.
-- **Remote Controlled:** When commanded into this state, the robot will except commands from the
-  joystick. The commands will be followed except where sensor (TBD) detect hazards and prevent the
-  operator from damaging the robot. In this state, all motors are enabled.
-- **Display:** When commanded into this state, the robot acts like a robotic static display. The leg
-  motors are not enabled, however the dome motor is able to move. This mode is entered either by
-  a software command or external power supplied to the robot which will trigger relays and automatically
-  cut power to the leg motors.
-- **Autonomous [objective]:** When commanded into this mode, the robot will autonomous move and avoid obstacles
-  using its onboard sensors (TBD). When any issue arrises (i.e., motor currents exceeded, loss of
-  sensors prohibiting safe opperation, TBD) the robot will immediately go to standby mode.
-
-The system shall be designed to run the R2 software as a Debian service under `systemd`
-once everything works. During development, this won't be implemented for safety reasons.
+- **Off:** 
+- **Standby:** 
+- **Remote Controlled:**
+- **Display:**
 
 # Statement of Work
 
@@ -77,6 +64,32 @@ The following are used:
 
 The following was created for the purpose of R2D2's code simplicity, which combines the above codes into one python library file:
 
-- [library]
+- [library](https://github.com/DFEC-R2D2/r2d2/blob/master/Final/Code/library.py)
 
-The R2D2 code can be found in the directory called Final with the python file named run.py. Currently, the Raspberry Pi 3 image that we created allows R2D2 to automatically run this code when booted on. All the USB devices that are connected to the R2D2 are based on our actual model, and would need to be changed to match the serial information of the new device if you are considering making another R2D2.
+The sound files that R2D2 plays can be loaded in with the clips sound files and through the sounds.py with the extension of clips.json, which initializes the sound files to the sounds.py file.
+
+- [sounds](https://github.com/DFEC-R2D2/r2d2/blob/master/Final/Code/sounds.py)
+
+The R2D2 code can be found in the directory called Final with the python file named run.py. 
+
+- [run](https://github.com/DFEC-R2D2/r2d2/blob/master/Final/Code/run.py)
+
+Currently, the Raspberry Pi 3 image that we created allows R2D2 to automatically run this code when booted on. All the USB devices that are connected to the R2D2 are based on our actual model, and would need to be changed to match the serial information of the new device if you are considering making another R2D2. If needed, the image file can be acquired through the DFEC Department Instructor Major Kevin Walchko.
+
+The functions that are created for R2D2 can be followed below:
+
+- **random_char(length):** This function creates a random character string with specified length as a input to use with TTastromech library. It receives as a input a length in integer, and outputs a string of that specified length.
+- **standby(standbyflag):** This function is the standby mode function, it receives the standbyflag, which is set by the keypad on R2D2. This flag is set when 1 is pressed, and continues to be set until R2D2 is put into another mode. At this stage, R2D2 is sitting idle until another mode is pressed. This means that R2D2 will have no motor controls, and will not be reading from any of its sensor. No command can be given, unless its given predefined emotions from buttons 4, 5, and 6.
+- **static(staticflag):** This function is the static mode function, it receives the staticflag, which is set by the keypad on R2D2. This flag is set when 2 is pressed, and continues to be set until R2D2 is put into another mode. The static display mode ensures that R2D2 does not have any motor controls, but reads from its sensors. All functions are available on static display mode except for the motors.
+- **remote(remoteflag):** This function is the remote mode function, it reeives the remoteflag, which is set by the keypad on R2D2. This flag is set when 3 is pressed, and continues to be set until R2D2 is put into another mode. The remote mode ensure that R2D2 has full capabilities, such that the motor control works, and all its functionalities are present. R2D2 will be controlled through the PS4 controller. The instructions for connecting the PS4 controller to R2D2 can be found in the operations manual.
+- **reboot(rebootflag):** This function is the reboot function. This can be called at any mode and will reboot R2D2. This function receives the rebootflag from the button *. Once this rebootflag is set, the function calls on a reboot command to the terminal, hence terminating all running processes and restarting the raspberry pi 3.
+- **shutdown(shutdownflag):** This function is the shutdown function. This can be called at any mode and will reboot R2D2. This function receives the shutdownflag from the button #. Once this shutdownflag is set, the function calls on a shutdown command to the terminal, hence terminating all running processes and shutting down the raspberry pi 3.
+- **happy():** This function does not have any inputs or outputs, as the commands are given from the function. The happy function turns on the green LED on the 8x8 matrix LED pads, and also spins the dome. The top hatch of R2D2 will open in a wave and close in a wave. This can be either called from the keypad button 4, or from the arrow hat on the controller.
+- **confused():** This function does not have any inputs or outputs, as the commands are given from the function. The happy function turns on the orange LED on the 8x8 matrix LED pads. This can be either called from the keypad button 5, or from the arrow hat on the controller.
+- **angry():** This function does not have any inputs or outputs, as the commands are given from the function. The happy function turns on the red LED on the 8x8 matrix LED pads, and plays the imperial theme sound. Once the theme sound is complete, it opens the top hatch of R2D2 and closes it afterwards. This can be either called from the keypad button 6, or from the arrow hat on the controller.
+- **battery(battflag):** This function is automatically ran when R2D2 is powered on. It receives the battflag, which is set when R2D2 is powered on. This enables the user to gauge the battery level of the battery. This is only shown when the battery is plugged in. If it is powered through the wall cable, then it will display all red.
+- **mode(standbyflag, staticflag, remoteflag):** This function is automatically ran when R2D2 is powered on. It receives the status of the standby, static, and remote flags and based on those flags, will turn on colors corresponding to the mode of R2D2. 
+
+
+
+
