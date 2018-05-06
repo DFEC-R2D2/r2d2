@@ -5,7 +5,7 @@
 
 # R2-D2 Senior Design Project
 
-#####ALL UPDATED FILES CAN BE FOUND IN THE FOLDER LABELED "FINAL"
+###ALL UPDATED FILES CAN BE FOUND IN THE FOLDER LABELED "FINAL"
 
 This repo documents the progress of the R2-D2 design for the 2017-2018 class year. R2-D2's purpose, once
 it is delivered, is to:
@@ -20,7 +20,7 @@ it is delivered, is to:
 
 The power system is modeled around a common 12V system. Relays are used to route power for emergency stop, charging, or other reasons.
 
-![](pics/design/R2-D2-Power-v2.png)
+![](Final/Diagrams/Power%20System.jpg)
 
 Although there are mulitple batteries, they are all the same type of battery and therefore take the
 same type of charging. The battery chemestry and capacity is TBD.
