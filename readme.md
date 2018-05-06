@@ -5,7 +5,7 @@
 
 # R2-D2 Senior Design Project
 
-###ALL UPDATED FILES CAN BE FOUND IN THE FOLDER LABELED "FINAL"
+ALL UPDATED FILES CAN BE FOUND IN THE FOLDER LABELED "FINAL"
 
 This repo documents the progress of the R2-D2 design for the 2017-2018 class year. R2-D2's purpose, once
 it is delivered, is to:
