@@ -1,0 +1,6 @@
+{
+	"startup": "/home/pi/clips/startup.wav",
+	"shutdown": "/home/pi/clips/shutdown.wav",
+	"error": "/home/pi/clips/error.wav",
+	"imperial": "/home/pi/clips/imperial.wav"
+}
