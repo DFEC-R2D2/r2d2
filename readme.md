@@ -86,8 +86,32 @@ The functions that are created for R2D2 can be followed below:
 
 # Project in Pictures
 
-## Development: Breadboard and Brassboard
+## Functional Development: Breadboard
 
-<img src="pics/bread-board-1.jpg">
+This was R2's electronics on a box. It allowed full software design/testing with similar hardware without worrying about actually having R2's body built.
 
-<img src="pics/bread-board-2.jpg">
+<img src="pics/bread-board-1.jpg" height="400px">
+
+<img src="pics/bread-board-2.jpg" height="400px">
+
+<img src="pics/bread-board-3.jpg" width="400px">
+
+<img src="pics/bread-board-4.jpg" width="400px">
+
+<img src="pics/bread-board-5.jpg" width="400px">
+
+# Fit Development: Brassboard
+
+This was the next level and allowed development/testing against the exact hardware and interfaces in R2.
+
+<img src="pics/brass-board-1.jpg" width="400px">
+
+<img src="pics/brass-board-2.jpg" width="400px">
+
+<img src="pics/brass-board-3.jpg" width="400px">
+
+<img src="pics/brass-board-4.jpg" width="400px">
+
+<img src="pics/brass-board-5.jpg" width="400px">
+
+<img src="pics/brass-board-6.jpg" width="400px">
