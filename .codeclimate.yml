@@ -9,7 +9,10 @@ ratings:
    - "**.py"
 
 exclude_paths:
-- Archive_2017/
+- archive/
 - debian_packages/
 - docs/
-- sounds/
+- clips/
+- tests/
+- pics/
+- mechanical/

@@ -1,4 +1,5 @@
 #!/bin/sh
+# this is for travis-ci testing
 
 set -ex
 
