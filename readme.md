@@ -83,3 +83,11 @@ The functions that are created for R2D2 can be followed below:
 - **angry():** This function does not have any inputs or outputs, as the commands are given from the function. The happy function turns on the red LED on the 8x8 matrix LED pads, and plays the imperial theme sound. Once the theme sound is complete, it opens the top hatch of R2D2 and closes it afterwards. This can be either called from the keypad button 6, or from the arrow hat on the controller.
 - **battery(`battflag`):** This function is automatically ran when R2D2 is powered on. It receives the `battflag`, which is set when R2D2 is powered on. This enables the user to gauge the battery level of the battery. This is only shown when the battery is plugged in. If it is powered through the wall cable, then it will display all red.
 - **mode(`standbyflag`, `staticflag`, `remoteflag`):** This function is automatically ran when R2D2 is powered on. It receives the status of the standby, static, and remote flags and based on those flags, will turn on colors corresponding to the mode of R2D2.
+
+# Project in Pictures
+
+## Development: Breadboard and Brassboard
+
+<img src="pics/bread-board-1.jpg">
+
+<img src="pics/bread-board-2.jpg">
