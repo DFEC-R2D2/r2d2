@@ -115,3 +115,88 @@ This was the next level and allowed development/testing against the exact hardwa
 <img src="pics/brass-board-5.jpg" width="400px">
 
 <img src="pics/brass-board-6.jpg" width="400px">
+
+# Building
+
+Many of the hindges, mounting brackets, etc were designed and 3d printed. The largest design was the 2 rear feet. They were completely designed and 3d printed. They were painted using Rust-Oleum paint and primer. 
+
+<img src="pics/3d-print-1.jpg" width="400px">
+
+<img src="pics/3d-print-2.jpg" width="400px">
+
+<img src="pics/3d-print-3.jpg" width="400px">
+
+<img src="pics/3d-print-6.jpg" width="400px">
+
+<img src="pics/3d-print-7.jpg" width="400px">
+
+<img src="pics/3d-print-8.jpg" width="400px">
+
+# Integration
+
+## Electronics
+
+All of the electronics in the body were mounted on a clear piece of plexiglass.
+
+<img src="pics/electronics-1.jpg" width="400px">
+
+<img src="pics/electronics-2.jpg" width="400px">
+
+## Dome
+
+Mounts for all of the parts were 3d printed and epoxied to the dome. Then the electronics were bolted to the mounts.
+
+<img src="pics/dome-1.jpg" width="400px">
+
+<img src="pics/dome-2.jpg" width="400px">
+
+<img src="pics/dome-3.jpg" width="400px">
+
+<img src="pics/dome-4.jpg" width="400px">
+
+## Everything Else
+
+<img src="pics/dev-1.jpg" width="400px">
+
+<img src="pics/dev-2.jpg" width="400px">
+
+<img src="pics/dev-3.jpg" width="400px">
+
+<img src="pics/dev-4.jpg" width="400px">
+
+<img src="pics/dev-5.jpg" width="400px">
+
+<img src="pics/dev-6.jpg" width="400px">
+
+<img src="pics/dev-7.jpg" width="400px">
+
+<img src="pics/dev-8.jpg" width="400px">
+
+<img src="pics/dev-9.jpg" width="400px">
+
+<img src="pics/dev-10.jpg" width="400px">
+
+<img src="pics/dev-11.jpg" width="400px">
+
+<img src="pics/dev-12.jpg" width="400px">
+
+<img src="pics/dev-13.jpg" width="400px">
+
+<img src="pics/dev-14.jpg" width="400px">
+
+<img src="pics/dev-15.jpg" width="400px">
+
+<img src="pics/dev-16.jpg" width="400px">
+
+<img src="pics/dev-17.jpg" width="400px">
+
+<img src="pics/dev-18.jpg" width="400px">
+
+<img src="pics/dev-19.jpg" width="400px">
+
+<img src="pics/dev-20.jpg" width="400px">
+
+<img src="pics/dev-21.jpg" width="400px">
+
+
+
