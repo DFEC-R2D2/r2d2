@@ -40,9 +40,6 @@ The system shall follow the transition diagram shown above with the following de
 - **Remote Controlled:** The remote mode of R2D2 can be controlled through the PS4 controller. The instructions on how to connect the PS4 controller to R2D2 can be found in the operational manual. All functionalities of R2D2 is present in this mode.
 - **Display:** The display mode of R2D2 is used to showcase R2D2. This means that R2D2 is not capable of moving, because it is in display mode. The display mode will respond to people that are close to R2D2.
 
-# Statement of Work
-
-[SOW](docs/design_2017-2018/R2D2-2017.pdf)
 
 # Software
 
@@ -58,19 +55,18 @@ The following are used:
 - [fake_rpi](https://pypi.python.org/pypi/fake-rpi)
 - [opencvutils](https://pypi.python.org/pypi/opencvutils)
 - [nxp_imu](https://pypi.python.org/pypi/nxp-imu)
-- [mcp3208](https://pypi.python.org/pypi/mcp3208)
 
 The following was created for the purpose of R2D2's code simplicity, which combines the above codes into one python library file:
 
-- [library](https://github.com/DFEC-R2D2/r2d2/blob/master/Final/Code/library.py)
+- [library](https://github.com/DFEC-R2D2/r2d2/blob/master/final_design/code/library.py)
 
 The sound files that R2D2 plays can be loaded in with the clips sound files and through the sounds.py with the extension of `clips.json`, which initializes the sound files to the sounds.py file.
 
-- [sounds](https://github.com/DFEC-R2D2/r2d2/blob/master/Final/Code/sounds.py)
+- [sounds](https://github.com/DFEC-R2D2/r2d2/blob/master/final_design/code/sounds.py)
 
 The R2D2 code can be found in the directory called Final with the python file named run.py.
 
-- [run](https://github.com/DFEC-R2D2/r2d2/blob/master/Final/Code/run.py)
+- [run](https://github.com/DFEC-R2D2/r2d2/blob/master/final_design/code/run.py)
 
 Currently, the Raspberry Pi 3 image that we created allows R2D2 to automatically run this code when booted on. All the USB devices that are connected to the R2D2 are based on our actual model, and would need to be changed to match the serial information of the new device if you are considering making another R2D2. If needed, the image file can be acquired through the DFEC Department Instructor Major Kevin Walchko.
 
