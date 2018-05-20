@@ -1,0 +1,16 @@
+{
+  "name": "r2",
+  "version": "1.0.0",
+  "description": "Data display for R2-D2",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "Kevin J. Walchko",
+  "license": "MIT",
+  "dependencies": {
+    "chart.js": "^2.6.0",
+    "purecss": "*"
+  }
+}
