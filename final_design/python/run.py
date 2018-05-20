@@ -237,11 +237,11 @@ if __name__ == '__main__':
 	# processes can access it
 
 	# setup arduino
-	# arduinoSerialData = Arduino(arduino_port, 19200)
-	# namespace.arduinoSerialData = arduinoSerialData
+	arduinoSerialData = Arduino(arduino_port, 19200)
+	namespace.arduinoSerialData = arduinoSerialData
 
 	# setup flashlights
-	# namespace.flashlight = FlashlightPWM(15)
+	namespace.flashlight = FlashlightPWM(15)
 
 	# Initialize the keypad class
 	# kp = Keypad()
@@ -259,10 +259,10 @@ if __name__ == '__main__':
 	leds.append(LEDDisplay(0x74, led_type))
 	leds.append(LEDDisplay(0x75, led_type))
 
-	# for led in leds:
-	# 	led.setSolid()
-	# 	time.sleep(1)
-	# 	led.clear()
+	for led in leds:
+		led.setSolid()
+		time.sleep(0.5)
+		led.clear()
 	namespace.leds = leds
 
 	# Initialization of All state flags
