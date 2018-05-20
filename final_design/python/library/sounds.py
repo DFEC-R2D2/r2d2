@@ -26,31 +26,32 @@ class AudioPlayer(object):
 					break
 
 		else:
-			raise Exception('OS is unsupported')
+			raise Exception('OS is unsupported ... use linux or unix')
 
 	def set_volume(self, level):
 		if 100 < level < 0:
 			raise Exception('Error: volume must be between 0-100%')
 			os.system('amixer cset numid=3 {}%'.format(level))
 
-		def set_on_off(self, on=True):
-			val = None
-			if on:
-				val = 'on'
-			else:
-				val = 'off'
-			os.system('amixer cset numid=4 {}'.format(val))
+	def set_on_off(self, on=True):
+		val = None
+		if on:
+			val = 'on'
+		else:
+			val = 'off'
+		os.system('amixer cset numid=4 {}'.format(val))
 
 	def play(self, filename):
 		Popen('{} -q -V1 {}'.format(self.audio_player, filename), shell=True).wait()
 
 
 class Sounds(object):
-	def __init__(self, file, folder):
+	def __init__(self, file, folder, vol=5):
 		print('sounds starts')
 
 		# get path
 		self.cwd = os.getcwd() + folder
+		# self.cwd = file + '/' + folder
 		# get sound clips
 		fs = FileStorage()
 		fs.readJson(file)
@@ -59,7 +60,7 @@ class Sounds(object):
 		print('Found {} sounds clips'.format(len(self.db)))
 
 		self.audio_player = AudioPlayer()
-		self.audio_player.set_volume(5)  # volume is 0-100%
+		self.audio_player.set_volume(vol)  # volume is 0-100%
 		time.sleep(0.1)
 		print('AudioPlayer found:', self.audio_player.audio_player)
 

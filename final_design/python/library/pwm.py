@@ -26,11 +26,11 @@ class PWM(object):
 		self.channel = channel
 		# self.logger = logging.getLogger(__name__)
 
-	def __del__(self):
-		"""
-		Shuts off servo on exit.
-		"""
-		self.stop()
+	# def __del__(self):
+	# 	"""
+	# 	Shuts off servo on exit.
+	# 	"""
+	# 	self.stop()
 
 	@staticmethod
 	def all_stop():

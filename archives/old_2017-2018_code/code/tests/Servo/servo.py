@@ -23,6 +23,8 @@ class PWM(object):
 	minAngle = 0.0
 	pwm_max = 600  # Max pulse length out of 4096
 	pwm_min = 130  # Min pulse length out of 4096
+	# pwm_max = 400  # Max pulse length out of 4096
+	# pwm_min = 90  # Min pulse length out of 4096
 
 	def __init__(self, channel):
 		"""
@@ -119,10 +121,13 @@ class Servo(PWM):
 
 
 if __name__ == "__main__":
-	s = Servo(7)
-	s.angle = 0
-# 	sleep(1)
-# 	s.angle = 90.0
-# 	sleep(1)
-# 	s.angle = 180.0
-	sleep(1)
+	for id in [0, 1, 2, 4, 6]:
+		wait = 2
+		s = Servo(id)
+		s.setServoRangePulse(90, 400)
+		s.angle = 0
+		sleep(wait)
+		s.angle = 90.0
+		sleep(wait)
+		s.angle = 180.0
+		sleep(wait)

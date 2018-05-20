@@ -66,9 +66,9 @@ class LEDDisplay(object):
 
 		self.next = 0
 
-	def __del__(self):
-		self.clear()
-		sleep(0.005)
+	# def __del__(self):
+	# 	self.clear()
+	# 	sleep(0.005)
 
 	def clear(self):
 		self.display.clear()
@@ -132,31 +132,31 @@ class LEDDisplay(object):
 		self.display._device.writeList(0, self.display.buffer)
 
 
-class LogicFunctionDisplay(object):
-	"""
-	Array of LEDDisplays
-	"""
-	MONO = 0
-	BI = 1
-
-	def __init__(self, led_addrs, led_type=0):
-		self.leds = []
-		for addr in led_addrs:
-			if led_type == self.MONO:
-				led = LEDDisplay(i2c_addr=addr, led_type=0)
-			elif led_type == self.BI:
-				led = LEDDisplay(i2c_addr=addr, led_type=1)
-			else:
-				raise Exception('Wrong type of led display')
-
-			self.leds.append(led)
-
-	def update(self):
-		for led in self.leds:
-			led.update()
-
-	def setBrightness(self, bright):
-		if 0 > bright > 15:
-			return
-		for led in self.leds:
-			led.display.set_brightness(bright)
+# class LogicFunctionDisplay(object):
+# 	"""
+# 	Array of LEDDisplays
+# 	"""
+# 	MONO = 0
+# 	BI = 1
+#
+# 	def __init__(self, led_addrs, led_type=0):
+# 		self.leds = []
+# 		for addr in led_addrs:
+# 			if led_type == self.MONO:
+# 				led = LEDDisplay(i2c_addr=addr, led_type=0)
+# 			elif led_type == self.BI:
+# 				led = LEDDisplay(i2c_addr=addr, led_type=1)
+# 			else:
+# 				raise Exception('Wrong type of led display')
+#
+# 			self.leds.append(led)
+#
+# 	def update(self):
+# 		for led in self.leds:
+# 			led.update()
+#
+# 	def setBrightness(self, bright):
+# 		if 0 > bright > 15:
+# 			return
+# 		for led in self.leds:
+# 			led.display.set_brightness(bright)

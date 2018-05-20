@@ -161,7 +161,9 @@ class LogicFunctionDisplay(object):
 
 if __name__ == "__main__":
 # 	led = LogicFunctionDisplay([0x71, 0x72])
-    led = LEDDisplay(0x70,1)
+	# 0x70: bi-color
+	# 0x71-0x75: mono
+    led = LEDDisplay(0x75,0)
     for x in [0, 1, 2, 3, 4, 5, 6, 7]:
         for y in [0, 1, 2, 3, 4, 5, 6, 7]:
             led.set(x,y,2)
