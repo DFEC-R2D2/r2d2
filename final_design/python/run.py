@@ -14,12 +14,15 @@ import multiprocessing as mp
 # from time import sleep
 # import numpy as np
 import os
-import string
-import random
+# import string
+# import random
+from subprocess import call
+from math import sqrt
 
 # python modules from pip for hardware drivers
-from pysabertooth import Sabertooth
-from smc import SMC
+# from pysabertooth import Sabertooth
+# from smc import SMC
+from nxp_imu import IMU
 import RPi.GPIO as GPIO  # remove and use Flashlight!!!
 
 # get drivers from library
@@ -27,14 +30,18 @@ from library import Sounds
 from library import Arduino
 from library import Keypad
 # from library import Trigger, Axis, PS4, Joystick
-from library import Servo, FlashlightPWM
-from library import LEDDisplay
+# from library import Servo, FlashlightPWM
+# from library import LEDDisplay
 # from library import LogicFunctionDisplay
+from library import factory
 
 # States
 from states.remote import remote
 from states.standby import standby
 from states.static import static
+
+# Emotions
+from states.emotions import angry, happy, confused
 
 
 # set path to hardware
@@ -49,30 +56,87 @@ else:
 	leg_motors_port = '/dev/serial/by-id/usb-Dimension_Engineering_Sabertooth_2x32_16004F410010-if01'
 	dome_motor_port = '/dev/serial/by-id/usb-Pololu_Corporation_Pololu_Simple_Motor_Controller_18v7_50FF-6D06-7085-5652-2323-2267-if00'
 
-# Leg Motor Speed Global
-# global_LegMotor = 70
-
-
-# Generates a random character string of the defined length
-# def random_char(length):
-# 	return ''.join(random.choice(string.ascii_lowercase) for x in range(length))
-
 
 # Reboots R2D2
-def reboot(rebootflag, namespace):
+def reboot(namespace):
 	namespace.audio.sound('shutdown')
-	from subprocess import call
+	# from subprocess import call
 	call("sudo reboot now", shell=True)
 	return
 
 
 # Shutdowns R2D2
-def shutdown(shutdownflag, namespace):
+def shutdown(namespace):
 	namespace.audio.sound('shutdown')
-	from subprocess import call
+	# from subprocess import call
 	call("sudo poweroff", shell=True)
 	return
 
+
+def normalize(v):
+	d = sqrt(v[0]**2 + v[1]**2 + v[2]**2)
+	ret = (0, 0, 0,)
+	if d > 0.1:
+		m = 1/d
+		ret = (v[0]*m, v[1]*m, v[2]*m,)
+	return ret
+
+
+def background(flag, ns):
+	# setup arduino
+	# print("background process started")
+	print("Starting:", mp.current_process().name)
+	arduinoSerialData = Arduino(arduino_port, 19200)
+	imu = IMU(gs=4, dps=2000, verbose=False)
+
+	(leds, _, _, _, _) = factory(['leds'])
+
+	# print('flag', flag.is_set())
+
+	while flag.is_set():
+		a, m, g = imu.get()
+		ns.accels = a  # [x,y,z]
+		ns.mags = m
+		ns.gyros = g
+
+		a = normalize(a)
+		# seems that 0.80 is pretty big tilt
+		if a[2] < 0.85:
+			ns.safety_kill = True
+			print(a)
+			print('<<< TILT >>>')
+
+		# read battery
+		arduinoSerialData.write('2')
+		d = arduinoSerialData.readline()
+		if d:
+			batt = float(d)
+			ns.battery = batt
+
+		# read ultrasound
+		arduinoSerialData.write('1')
+		for u in [ns.usound0, ns.usound1, ns.usound2, ns.usound3]:
+			d = arduinoSerialData.readline()
+			if d:
+				u = float(d)
+
+		# update LEDs
+		fpsi = ns.logicdisplay['fpsi']
+		if fpsi == 0:
+			leds[0].setSolid(1)
+		elif fpsi == 1:
+			leds[0].setSolid(3)
+		elif fpsi == 2:
+			leds[0].setSolid(2)
+
+		for led in leds[1:]:
+			led.setRandom()
+
+		time.sleep(1)
+
+	# clean up
+	for led in leds:
+		led.clear()
 
 # Mode Monitor LED
 # def mode(standbyflag, staticflag, remoteflag, namespace):
@@ -108,184 +172,146 @@ def shutdown(shutdownflag, namespace):
 # 		time.sleep(2)
 
 
-def main_loop(ns):
-	# Initialize the keypad class
+def close_process(process, flag=None, timeout=0.1):
+	if flag:
+		flag.clear()
+	process.join(timeout=timeout)
+	if process.is_alive():
+		process.terminate()
+
+
+def main_loop2(ns):
+	"""
+	This is the main loop. All it does is reads the keypad and looks for input.
+	The input effects which state the robot is in and basically allows async
+	inputs.
+	"""
+	print('Main loop')
+
+	# background process talks to i2c and the microcontroller for safety. The
+	# data is pushed into global namespace memory for other processes to use
+	# as needed
+	bckground_flag = mp.Event()
+	bckground_flag.set()
+	bkgrd = mp.Process(name='background', target=background, args=(bckground_flag, ns,))
+	bkgrd.start()
+
+	flag = mp.Event()
+	flag.set()
+	ps = mp.Process(name='standbymode', target=standby, args=(flag, ns,))
+	ps.start()
+	ns.current_state = 1
+
 	kp = Keypad()
 
-	while(True):
-		# Loop while waiting for a keypress
-		digit = None
-		# while digit is None:
-		digit = kp.getKey()
+	try:
+		while (True):
+			key = 2
+			# if R2 has not fallen over, they check input
+			if ns.safety_kill:
+				key = 1  # sommething wrong, go to standby
+			else:
+				# key = None
+				# key = kp.getKey()
+				if key is None:
+					key = ns.current_state
 
-		if digit is None:
-			digit = 1
+			if key == ns.current_state:
+				time.sleep(0.5)
+			else:
+				# close down old state process
+				flag.clear()
+				time.sleep(0.1)
+				close_process(ps)
+				time.sleep(0.1)
 
-		if digit == 1:
-			# Turns on Standby Mode
-			if (staticflag.is_set()):
-				staticflag.clear()
-				staticflag.join(timeout=0.1)
-			if (remoteflag.is_set()):
-				remoteflag.clear()
-				remoteflag.join(timeout=0.1)
-			if (standbyflag.is_set()):
-				standbyflag.clear()
-				standbyflag.join(timeout=0.1)
+				# setup new state process
+				flag.set()
+				time.sleep(0.1)
+				if key == 1:
+					ps = mp.Process(name='standbymode', target=standby, args=(flag, ns,))
+					ps.start()
+					ns.current_state = 1
 
-			standbyflag.set()
-			standbymode = mp.Process(name='standbymode', target=standby, args=(standbyflag, namespace,))
-			standbymode.start()
+				elif key == 2:
+					ps = mp.Process(name='staticmode', target=static, args=(flag, ns,))
+					ps.start()
+					ns.current_state = 2
 
-		if digit == 2:
-			# Turns on Static Mode
-			if (staticflag.is_set()):
-				staticflag.clear()
-				staticflag.join(timeout=0.1)
-			if (remoteflag.is_set()):
-				remoteflag.clear()
-				remoteflag.join(timeout=0.1)
-			if (standbyflag.is_set()):
-				standbyflag.clear()
-				standbymode.join(timeout=0.1)
+				elif key == 3:
+					ps = mp.Process(name='remotemode', target=remote, args=(flag, ns,))
+					ps.start()
+					ns.current_state = 3
 
-			staticflag.set()
-			staticmode = mp.Process(name='staticmode', target=static, args=(staticflag, namespace,))
-			staticmode.start()
+				elif key == 4:
+					ns.emotions['happy'](ns.leds, ns.servos, ns.mc, ns.audio)
 
-		if digit == 3:
-			# Turns on Remote Mode
-			if (staticflag.is_set()):
-				staticflag.clear()
-				staticmode.join(timeout=0.1)
-			if (remoteflag.is_set()):
-				remoteflag.clear()
-				remoteflag.join(timeout=0.1)
-			if (standbyflag.is_set()):
-				standbyflag.clear()
-				standbymode.join(timeout=0.1)
+				elif key == 5:
+					ns.emotions['confused'](ns.leds, ns.servos, ns.mc, ns.audio)
 
-			remoteflag.set()
-			remotemode = mp.Process(name='remotemode', target=remote, args=(remoteflag, namespace,))
-			remotemode.start()
+				elif key == 6:
+					ns.emotions['angry'](ns.leds, ns.servos, ns.mc, ns.audio)
 
-		if digit == 4:
-			# Does Happy Emotion
-			# happy()
-			pass
-		if digit == 5:
-			# Does Confused Emotion
-			# confused()
-			pass
-		if digit == 6:
-			# Does Angry Emotion
-			# angry()
-			pass
-		if digit == 7:
-			# Not Defined
-			print("7")
-		if digit == 8:
-			# Not Defined
-			print("8")
-		if digit == 9:
-			# Not Defined
-			print("9")
-		if digit == 0:
-			# Not Defined
-			print("0")
-		if digit == "*":
-			# Reboots Process for R2D2
-			if (staticflag.is_set()):
-				staticflag.clear()
-				staticmode.join(timeout=0.1)
-			if (remoteflag.is_set()):
-				remoteflag.clear()
-				remotemode.join(timeout=0.1)
-			if (standbyflag.is_set()):
-				standbyflag.clear()
-				standbymode.join(timeout=0.1)
+	except KeyboardInterrupt:
+		flag.clear()
+		time.sleep(1)
+		close_process(ps)
 
-			rebootflag.set()
-			rebootmode = mp.Process(name='Reboot', target=reboot, args=(rebootflag, namespace,))
-			rebootmode.start()
-		if digit == "#":
-			# Shutdown Process for R2D2
-			if (staticflag.is_set()):
-				staticflag.clear()
-				staticmode.join(timeout=0.1)
-			if (remoteflag.is_set()):
-				remoteflag.clear()
-				remotemode.join(timeout=0.1)
-			if (standbyflag.is_set()):
-				standbyflag.clear()
-				standbymode.join(timeout=0.1)
+		bckground_flag.clear()
+		time.sleep(1)
+		close_process(bkgrd)
 
-			shutdownflag.set()
-			shutdownmode = mp.Process(name='Shutdown', target=shutdown, args=(shutdownflag, namespace,))
-			shutdownmode.start()
-		time.sleep(0.5)
+
+
 
 
 if __name__ == '__main__':
 	# setup a global namespace for all processes
 	mgr = mp.Manager()
 	namespace = mgr.Namespace()
-	namespace.ps = {}  # list of all processes
 
 	##############################
-	# This section sets up all hardware and puts it in namespace so the individual
-	# processes can access it
+	# This section sets up global namespace
 
-	# setup arduino
-	arduinoSerialData = Arduino(arduino_port, 19200)
-	namespace.arduinoSerialData = arduinoSerialData
+	# safety, R2 has fallen over, kill all motors and signal for help!!
+	namespace.safety_kill = False
 
-	# setup flashlights
-	namespace.flashlight = FlashlightPWM(15)
+	# how many detects before person found
+	namespace.opencv_person_found = 5
 
-	# Initialize the keypad class
-	# kp = Keypad()
+	# setup emotions
+	namespace.emotions = {
+		'angry': angry,
+		'happy': happy,
+		'confused': confused
+	}
 
-	# setup LED matricies
-	# breadboard has mono
-	# R2 has bi-color leds
-	# mono:0 bi:1
-	led_type = 0
-	leds = []
-	leds.append(LEDDisplay(0x70, 1))  # bi-color on both
-	leds.append(LEDDisplay(0x71, led_type))
-	leds.append(LEDDisplay(0x72, led_type))
-	leds.append(LEDDisplay(0x73, led_type))
-	leds.append(LEDDisplay(0x74, led_type))
-	leds.append(LEDDisplay(0x75, led_type))
+	namespace.states = {
+		1: 'standby',
+		3: 'remote',
+		2: 'static'
+	}
 
-	for led in leds:
-		led.setSolid()
-		time.sleep(0.5)
-		led.clear()
-	namespace.leds = leds
+	# ultra sonic sensors for safety
+	namespace.usound0 = 0
+	namespace.usound1 = 0
+	namespace.usound2 = 0
+	namespace.usound3 = 0
 
-	# Initialization of All state flags
-	standbyflag = mp.Event()
-	staticflag = mp.Event()
-	remoteflag = mp.Event()
-	rebootflag = mp.Event()
-	shutdownflag = mp.Event()
-
-	# exit()
-
-	# why??
-	# Starting Battery Monitor Process
-	# battflag = mp.Event()
-	# battflag.set()
-	# battmode = mp.Process(name='battmode', target=battery, args=(battflag,))
-	# battmode.start()
-
-	# Starting Mode Monitor Process
-	# modeflag = mp.Event()
-	# modeflag.set()
-	# modemode = mp.Process(name="modemode", target=mode, args=(standbyflag, staticflag, remoteflag, namespace,))
-	# modemode.start()
+	# logic displays
+	# lfd: errors
+	#   0: green
+	#   1: yellow
+	#   2: red
+	# fpsi:
+	#   top: mode
+	#   botom: battery level
+	# rld: random
+	namespace.logicdisplay = {
+		'lfd': 0,   # front logic display: 0x71, 0x74
+		'fpsi': 0,  # front process state indicator, 0x70
+		'rld': 0    # rear logic display, 0x75, 0x73, 0x72
+	}
 
 	# Flashlight Off ... why?
 	GPIO.setmode(GPIO.BCM)
@@ -293,43 +319,15 @@ if __name__ == '__main__':
 	GPIO.setup(26, GPIO.OUT)
 	GPIO.output(26, GPIO.LOW)
 
-	# Servo Initialization
-	# servos = [Servo(0), Servo(1), Servo(2), Servo(3), Servo(4)]
-	servos = []
-	for id in range(5):
-		s = Servo(id)
-		s.setServoRangePulse(90, 400)
-		servos.append(s)
-	namespace.servos = servos
-
-	for s in servos:
-		s.angle = 0
-		time.sleep(1)
-		s.angle = 90
-		time.sleep(1)
-		s.angle = 180
-		time.sleep(1)
-	time.sleep(2)
-
 	# setup audio
 	# if running as a service, might have to give full path
 	cwd = os.getcwd()
-	namespace.audio = Sounds(cwd + "/clips.json", '/clips')
-	namespace.audio.speak("hi how are you")
-	namespace.audio.sound('wookie1')
-
-	# Dome Motor Initialization
-	mc = SMC(dome_motor_port, 115200)
-	mc.init()
-	namespace.dome = mc
-
-	# Setup leg motors
-	# Sabertooth Initialization
-	saber = Sabertooth(leg_motors_port, baudrate=38400)
-	namespace.legs = saber
+	audio = Sounds(cwd + "/clips.json", '/clips')
+	audio.set_volume(25)
+	namespace.audio = audio
 
 	# End namespace setup
 	###################################
-	time.sleep(3)
-	exit()
-	main_loop(namespace)
+	# time.sleep(3)
+	# exit()
+	main_loop2(namespace)

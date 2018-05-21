@@ -7,9 +7,10 @@ from pygecko import FileStorage
 from ttastromech import TTAstromech
 import os
 import platform
-from subprocess import Popen
+from subprocess import Popen, call
 import random
 import string
+# import subprocess
 
 
 class AudioPlayer(object):
@@ -31,9 +32,14 @@ class AudioPlayer(object):
 	def set_volume(self, level):
 		if 100 < level < 0:
 			raise Exception('Error: volume must be between 0-100%')
-			os.system('amixer cset numid=3 {}%'.format(level))
+			# os.system('amixer cset numid=3 {}%'.format(level))
+			# os.system("amixer sset 'Master' {}%".format(level))
+			call(["amixer", "sset", "numid=3", str(level), "%"])
 
 	def set_on_off(self, on=True):
+		"""
+		Turn on/off audio
+		"""
 		val = None
 		if on:
 			val = 'on'
@@ -65,10 +71,15 @@ class Sounds(object):
 		print('AudioPlayer found:', self.audio_player.audio_player)
 
 		self.r2 = TTAstromech()
-		# self.r2.speak('warning')
-		# time.sleep(0.5)
 
-	def random_char(length):
+	def set_volume(self, level):
+		if 100 < level < 0:
+			raise Exception('Error: volume must be between 0-100%')
+			# os.system('amixer cset numid=3 {}%'.format(level))
+			os.system("amixer sset 'Master' {}%".format(level))
+			# call(["amixer", "sset", "numid=3", str(level), "%"])
+
+	def random_char(self, length):
 		"""
 		Generates a random character string of the defined length
 		"""

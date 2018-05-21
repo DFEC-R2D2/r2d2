@@ -4,4 +4,5 @@ from library.keypad import Keypad
 from library.pwm import FlashlightPWM, Servo
 from library.sounds import AudioPlayer, Sounds
 from library.led_matrix import LEDDisplay
+from library.factory import factory
 # from library.led_matrix import LogicFunctionDisplay

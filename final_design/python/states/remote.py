@@ -4,147 +4,166 @@ from random import randint
 # from library import PS4
 from library import Joystick
 import RPi.GPIO as GPIO  # remove!!!
+from emotions import angry, happy, confused
+# from pysabertooth import Sabertooth
+# from smc import SMC
+from library import LEDDisplay
+from library import factory
 
 # Leg Motor Speed Global
 global_LegMotor = 70
 
 
-# Happy Emotion
-def happy(leds, servos, mc, audio):
-	print("4")
-	print("Happy")
-
-	# Dome Motor Initialization
-	# mc = SMC(dome_motor_port, 115200)
-	# mc.init()
-
-	# Spins Motor
-	# mc.init()
-	mc.speed(3200)
-
-	# LED Matrix Green
-	# breadboard has mono
-	# R2 has bi-color leds
-	# mono:0 bi:1
-	# led_type = 0
-	# leds = [0]*5
-	# leds[1] = LEDDisplay(0x70, led_type)
-	# leds[2] = LEDDisplay(0x71, led_type)
-	# leds[3] = LEDDisplay(0x72, led_type)
-	# leds[4] = LEDDisplay(0x73, led_type)
-
-	for x in [0, 1, 2, 3, 4, 5, 6, 7]:
-		for y in [0, 1, 2, 3, 4, 5, 6, 7]:
-			for i in range(1, 5):
-				leds[i].set(x, y, 1)
-
-	for i in range(1, 5):
-		leds[i].write()
-
-	# Servo Wave
-	# s0.angle = 0
-	# time.sleep(0.2)
-	# s1.angle = 0
-	# time.sleep(0.2)
-	# s2.angle = 0
-	# time.sleep(0.2)
-	# s3.angle = 0
-	# time.sleep(0.2)
-	# s4.angle = 0
-	# time.sleep(0.5)
-	# s4.angle = 130
-	# time.sleep(0.2)
-	# s3.angle = 130
-	# time.sleep(0.2)
-	# s2.angle = 130
-	# time.sleep(0.2)
-	# s1.angle = 130
-	# time.sleep(0.2)
-	# s0.angle = 130
-
-	for a in [0, 130]:
-		for i in range(4):
-			servos[i].angle = a
-			time.sleep(0.2)
-		time.sleep(0.5)
-
-	time.sleep(1.5)
-	mc.stop()
-	time.sleep(1.5)
-	for i in range(1, 5):
-		leds[i].clear()
-
-
-#  Confused Emotion
-def confused(leds, servos, mc, audio):
-	print("5")
-	print("Confused")
-	# LED Matrix Yellow
-	# leds = [0]*5
-	# leds[1] = LEDDisplay(0x70, 1)
-	# leds[2] = LEDDisplay(0x71, 1)
-	# leds[3] = LEDDisplay(0x72, 1)
-	# leds[4] = LEDDisplay(0x73, 1)
-
-	for x in [0, 1, 2, 3, 4, 5, 6, 7]:
-			for y in [0, 1, 2, 3, 4, 5, 6, 7]:
-				for i in range(1, 5):
-					leds[i].set(x, y, 3)
-	for i in range(1, 5):
-			leds[i].write()
-	time.sleep(3)
-	for i in range(1, 5):
-			leds[i].clear()
-
-
-# Angry Emotion
-def angry(leds, servos, mc, audio):
-	print("6")
-	print("Angry")
-	# LED Matrix Red
-	# leds = [0]*5
-	# leds[1] = LEDDisplay(0x70, 1)
-	# leds[2] = LEDDisplay(0x71, 1)
-	# leds[3] = LEDDisplay(0x72, 1)
-	# leds[4] = LEDDisplay(0x73, 1)
-
-	for x in [0, 1, 2, 3, 4, 5, 6, 7]:
-			for y in [0, 1, 2, 3, 4, 5, 6, 7]:
-				for i in range(1, 5):
-					leds[i].set(x, y, 2)
-
-	for i in range(1, 5):
-			leds[i].write()
-
-	# Plays Imperial Theme Sound
-	audio.sound('imperial')
-
-	# Servo Open and Close
-	# s0.angle = 0
-	# s1.angle = 0
-	# s2.angle = 0
-	# s3.angle = 0
-	# s4.angle = 0
-	# time.sleep(1)
-	# s4.angle = 130
-	# s3.angle = 130
-	# s2.angle = 130
-	# s1.angle = 130
-	# s0.angle = 130
-
-	for a in [0, 130]:
-		for i in range(5):
-			servos[i].angle = a
-		time.sleep(1)
-
-	time.sleep(3)
-	for i in range(1, 5):
-		leds[i].clear()
+# # Happy Emotion
+# def happy(leds, servos, mc, audio):
+# 	print("4")
+# 	print("Happy")
+#
+# 	# Dome Motor Initialization
+# 	# mc = SMC(dome_motor_port, 115200)
+# 	# mc.init()
+#
+# 	# Spins Motor
+# 	# mc.init()
+# 	mc.speed(3200)
+#
+# 	# LED Matrix Green
+# 	# breadboard has mono
+# 	# R2 has bi-color leds
+# 	# mono:0 bi:1
+# 	# led_type = 0
+# 	# leds = [0]*5
+# 	# leds[1] = LEDDisplay(0x70, led_type)
+# 	# leds[2] = LEDDisplay(0x71, led_type)
+# 	# leds[3] = LEDDisplay(0x72, led_type)
+# 	# leds[4] = LEDDisplay(0x73, led_type)
+#
+# 	for x in [0, 1, 2, 3, 4, 5, 6, 7]:
+# 		for y in [0, 1, 2, 3, 4, 5, 6, 7]:
+# 			for i in range(1, 5):
+# 				leds[i].set(x, y, 1)
+#
+# 	for i in range(1, 5):
+# 		leds[i].write()
+#
+# 	# Servo Wave
+# 	# s0.angle = 0
+# 	# time.sleep(0.2)
+# 	# s1.angle = 0
+# 	# time.sleep(0.2)
+# 	# s2.angle = 0
+# 	# time.sleep(0.2)
+# 	# s3.angle = 0
+# 	# time.sleep(0.2)
+# 	# s4.angle = 0
+# 	# time.sleep(0.5)
+# 	# s4.angle = 130
+# 	# time.sleep(0.2)
+# 	# s3.angle = 130
+# 	# time.sleep(0.2)
+# 	# s2.angle = 130
+# 	# time.sleep(0.2)
+# 	# s1.angle = 130
+# 	# time.sleep(0.2)
+# 	# s0.angle = 130
+#
+# 	for a in [0, 130]:
+# 		for i in range(4):
+# 			servos[i].angle = a
+# 			time.sleep(0.2)
+# 		time.sleep(0.5)
+#
+# 	time.sleep(1.5)
+# 	mc.stop()
+# 	time.sleep(1.5)
+# 	for i in range(1, 5):
+# 		leds[i].clear()
+#
+#
+# #  Confused Emotion
+# def confused(leds, servos, mc, audio):
+# 	print("5")
+# 	print("Confused")
+# 	# LED Matrix Yellow
+# 	# leds = [0]*5
+# 	# leds[1] = LEDDisplay(0x70, 1)
+# 	# leds[2] = LEDDisplay(0x71, 1)
+# 	# leds[3] = LEDDisplay(0x72, 1)
+# 	# leds[4] = LEDDisplay(0x73, 1)
+#
+# 	for x in [0, 1, 2, 3, 4, 5, 6, 7]:
+# 			for y in [0, 1, 2, 3, 4, 5, 6, 7]:
+# 				for i in range(1, 5):
+# 					leds[i].set(x, y, 3)
+# 	for i in range(1, 5):
+# 			leds[i].write()
+# 	time.sleep(3)
+# 	for i in range(1, 5):
+# 			leds[i].clear()
+#
+#
+# # Angry Emotion
+# def angry(leds, servos, mc, audio):
+# 	print("6")
+# 	print("Angry")
+# 	# LED Matrix Red
+# 	# leds = [0]*5
+# 	# leds[1] = LEDDisplay(0x70, 1)
+# 	# leds[2] = LEDDisplay(0x71, 1)
+# 	# leds[3] = LEDDisplay(0x72, 1)
+# 	# leds[4] = LEDDisplay(0x73, 1)
+#
+# 	for x in [0, 1, 2, 3, 4, 5, 6, 7]:
+# 			for y in [0, 1, 2, 3, 4, 5, 6, 7]:
+# 				for i in range(1, 5):
+# 					leds[i].set(x, y, 2)
+#
+# 	for i in range(1, 5):
+# 			leds[i].write()
+#
+# 	# Plays Imperial Theme Sound
+# 	audio.sound('imperial')
+#
+# 	# Servo Open and Close
+# 	# s0.angle = 0
+# 	# s1.angle = 0
+# 	# s2.angle = 0
+# 	# s3.angle = 0
+# 	# s4.angle = 0
+# 	# time.sleep(1)
+# 	# s4.angle = 130
+# 	# s3.angle = 130
+# 	# s2.angle = 130
+# 	# s1.angle = 130
+# 	# s0.angle = 130
+#
+# 	for a in [0, 130]:
+# 		for i in range(5):
+# 			servos[i].angle = a
+# 		time.sleep(1)
+#
+# 	time.sleep(3)
+# 	for i in range(1, 5):
+# 		leds[i].clear()
 
 
 # Remote Mode
 def remote(remoteflag, namespace):
 	print("Remote")
+
+	# create objects
+	(leds, dome, legs, servos, Flash) = factory(['leds', 'dome', 'legs', 'servos', 'flashlight'])
+
+	# initalize everything
+	dome.init()
+	dome.speed(0)
+
+	legs.drive(1, 0)
+	legs.drive(2, 0)
+
+	for s in servos:
+		s.angle = 0
+		time.sleep(0.25)
 
 	# what is this???
 	GPIO.setmode(GPIO.BCM)
@@ -153,21 +172,12 @@ def remote(remoteflag, namespace):
 
 	# Joystick Initialization
 	js = Joystick()
-	#
-	# # Sabertooth Initialization
-	# saber = Sabertooth(leg_motors_port, baudrate=38400)
 
-	saber = namespace.legs
+	# get audio
 	audio = namespace.audio
 
-	# Dome Motor Initialization
-	mc = namespace.dome
-	leds = namespace.leds
-
-	# Servo Initialization
-	servos = namespace.servos
 	# Flash = FlashlightPWM(15)
-	Flash = namespace.flashlight
+	# Flash = namespace.flashlight
 
 	while(remoteflag.is_set()):
 		try:
@@ -193,15 +203,15 @@ def remote(remoteflag, namespace):
 			if hat == 1:
 				# Happy Emotion
 				print("Arrow Up Pressed")
-				happy(leds, servos, mc, audio)
+				happy(leds, servos, dome, audio)  # namespace.emotions['happy'](leds, servos, mc, audio)
 			if hat == 8:
 				# Confused Emotion
 				print("Arrow Left Pressed")
-				confused(leds, servos, mc, audio)
+				confused(leds, servos, dome, audio)
 			if hat == 2:
 				# Angry Emotion
 				print("Arrow Right Pressed")
-				angry(leds, servos, mc, audio)
+				angry(leds, servos, dome, audio)
 			if hat == 4:
 				print("Arrow Down Pressed")
 			if btnSquare == 1:
@@ -217,12 +227,6 @@ def remote(remoteflag, namespace):
 				GPIO.output(26, GPIO.LOW)
 				Flash.pwm.set_pwm(15, 0, 0)
 				if btnX == 1:
-					# LED Matrix Random
-					# leds = [0]*5
-					# leds[1] = LEDDisplay(0x70, 1)
-					# leds[2] = LEDDisplay(0x71, 1)
-					# leds[3] = LEDDisplay(0x72, 1)
-					# leds[4] = LEDDisplay(0x73, 1)
 					for x in [0, 1, 2, 3, 4, 5, 6, 7]:
 						for y in [0, 1, 2, 3, 4, 5, 6, 7]:
 							if x == randint(0, 8) or y == randint(0, 8):
@@ -238,17 +242,17 @@ def remote(remoteflag, namespace):
 						leds[i].clear()
 			if Left1 == 1:
 				# Dome Motor Forward
-				mc.speed(3200)
+				dome.speed(3200)
 				time.sleep(2)
-				mc.speed(0)
+				dome.speed(0)
 			if Right1 == 1:
 				# Dome Motor Backward
-				mc.speed(-3200)
+				dome.speed(-3200)
 				time.sleep(2)
-				mc.speed(0)
+				dome.speed(0)
 			# if Left1 == 0 or Right1 == 0:
-			# 		Dome Motor Stop
-			#        mc.speed(0)
+			# 	# Dome Motor Stop
+			# 	dome.speed(0)
 			# if Left2 > 1:
 			# 	# Servo Open
 			# 	s0.angle = 0
@@ -266,26 +270,36 @@ def remote(remoteflag, namespace):
 			# 	s3.angle = 130
 			# 	s4.angle = 130
 			# 	Flash.pwm.set_pwm(15, 0, 130)
+			if Left2 > 1:
+				for s in servos:
+					s.angle = 0
+					time.sleep(0.25)
+					Flash.pwm.set_pwm(15, 0, 300)
+			if Right2 > 1:
+				for s in servos:
+					s.angle = 130
+					time.sleep(0.25)
+					Flash.pwm.set_pwm(15, 0, 130)
 			if btnLeftStickLeftRight < 0.3 and btnLeftStickLeftRight > -0.3:
-				saber.drive(1, 0)
+				legs.drive(1, 0)
 			if btnRightStickUpDown < 0.3 and btnRightStickUpDown > -0.3:
-				saber.drive(2, 0)
+				legs.drive(2, 0)
 			if btnRightStickUpDown >= 0.3:
 				# Right and Left Motor Forward
-				saber.drive(1, btnRightStickUpDown*global_LegMotor)
-				saber.drive(2, btnRightStickUpDown*-global_LegMotor)
+				legs.drive(1, btnRightStickUpDown*global_LegMotor)
+				legs.drive(2, btnRightStickUpDown*-global_LegMotor)
 			if btnRightStickUpDown <= -0.3:
 				# Right and Left Motor Backward
-				saber.drive(1, btnRightStickUpDown*global_LegMotor)
-				saber.drive(2, btnRightStickUpDown*-global_LegMotor)
+				legs.drive(1, btnRightStickUpDown*global_LegMotor)
+				legs.drive(2, btnRightStickUpDown*-global_LegMotor)
 			if btnLeftStickLeftRight <= 0.3:
 				# Turn Left
-				saber.drive(1, btnLeftStickLeftRight*(-global_LegMotor))
-				saber.drive(2, btnLeftStickLeftRight*-global_LegMotor)
+				legs.drive(1, btnLeftStickLeftRight*(-global_LegMotor))
+				legs.drive(2, btnLeftStickLeftRight*-global_LegMotor)
 			if btnLeftStickLeftRight >= -0.3:
 				# Turn Right
-				saber.drive(1, btnLeftStickLeftRight*(-global_LegMotor))
-				saber.drive(2, btnLeftStickLeftRight*-global_LegMotor)
+				legs.drive(1, btnLeftStickLeftRight*(-global_LegMotor))
+				legs.drive(2, btnLeftStickLeftRight*-global_LegMotor)
 
 		except KeyboardInterrupt:
 			print('js exiting ...')
