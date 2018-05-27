@@ -30,11 +30,16 @@ class AudioPlayer(object):
 			raise Exception('OS is unsupported ... use linux or unix')
 
 	def set_volume(self, level):
+		"""
+		sudo alsactl store
+		saves to /var/lib/alsa/asound.state
+		I don't think this works right with i2s amps ... nothing changes
+		"""
 		if 100 < level < 0:
 			raise Exception('Error: volume must be between 0-100%')
 			# os.system('amixer cset numid=3 {}%'.format(level))
 			# os.system("amixer sset 'Master' {}%".format(level))
-			call(["amixer", "sset", "numid=3", str(level), "%"])
+			call(["amixer", "cset", "numid=3", str(level), "%"])
 
 	def set_on_off(self, on=True):
 		"""
