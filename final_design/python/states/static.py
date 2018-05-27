@@ -4,7 +4,7 @@ from __future__ import print_function
 # from random import randint
 import time
 import cv2
-from opencvutils import Camera
+# from opencvutils import Camera
 # from smc import SMC
 from library import factory
 import multiprocessing as mp
@@ -124,3 +124,77 @@ def static(staticflag, namespace):
 			# 	print("found person")
 
 		time.sleep(0.5)
+
+
+def static_func(hw, ns):
+	print("Starting static")
+
+	dome = hw['dome']
+	dome.speed(0)
+
+	legs = hw['legs']
+	legs.drive(1, 0)
+	legs.drive(2, 0)
+
+	flashlight = hw['flashlight']
+
+	audio = hw['audio']
+	audio.speak('start')
+
+	# setup computer vision
+	# face detection
+	cascPath = 'haarcascade_frontalface_default.xml'
+	faceCascade = cv2.CascadeClassifier(cascPath)
+
+	# camera
+	# image_size = (640, 480)
+	# camera = Camera(cam='pi')
+	# camera.init(win=image_size)
+	camera = cv2.VideoCapture(0)
+
+	person_found_cnt = 0
+
+	ns.servo_wave = True
+
+	while ns.current_state == 2:
+		# Sensor Reading
+		# get ultrasound
+
+		audio.sound('nerf')
+
+		# grab image and see if a person is there
+		ok, img = camera.read()
+		if ok:
+			print('-')
+			gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+			# cv2.imwrite('save.png', gray)
+
+			faces = faceCascade.detectMultiScale(
+				gray,
+				scaleFactor=1.1,
+				minNeighbors=5,
+				minSize=(30, 30)
+			)
+
+			if len(faces) > 0:
+				person_found_cnt += 1
+				print('+')
+			else:
+				person_found_cnt = 0
+				print('0')
+
+			if person_found_cnt > ns.opencv_person_found:
+				person_found_cnt = 0
+				audio.speak_random(2)
+				(x, y, w, h) = faces[0]
+				cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
+				# cv2.imwrite('face_save.png', img)
+				audio.speak('found')
+
+			# for (x, y, w, h) in faces:
+			# 	cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
+			# 	cv2.imwrite('face_save.png', img)
+			# 	print("found person")
+
+		# time.sleep(0.5)
+		print('.')

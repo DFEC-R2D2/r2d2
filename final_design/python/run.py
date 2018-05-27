@@ -69,7 +69,7 @@ def reboot(namespace):
 def shutdown(namespace):
 	namespace.audio.sound('shutdown')
 	# from subprocess import call
-	call("sudo poweroff", shell=True)
+	call("sudo shutdown", shell=True)
 	return
 
 

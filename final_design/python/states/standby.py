@@ -48,3 +48,32 @@ def standby(flag, ns):
 
 		time.sleep(1)
 	return
+
+
+def standby_func(hw, ns):
+	# print("Standby")
+	# print("Starting:", mp.current_process().name)
+	print("Starting Standby")
+
+	audio = hw['audio']
+	audio.speak('start')
+
+	while ns.current_state == 1:
+		# we are in a bad place
+		# if ns.safety_kill:
+		# 	print('DANGER: stopping everything')
+		#
+		# 	ns.logicdisplay['fpsi'] = 2  # set red
+		#
+		# 	# flash and ask for help!
+		# 	while True:
+		# 		# for led in leds:
+		# 		# 	led.setSolid()
+		# 		# 	time.sleep(0.5)
+		# 		# 	led.clear()
+		# 		audio.sound('feeling')
+		# 		time.sleep(3)
+		#
+		print("standing bye ...")
+		time.sleep(1)
+	return
