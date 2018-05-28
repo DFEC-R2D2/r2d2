@@ -10,7 +10,6 @@
   "author": "Kevin J. Walchko",
   "license": "MIT",
   "dependencies": {
-    "chart.js": "^2.6.0",
     "purecss": "*"
   }
 }
