@@ -19,7 +19,7 @@ it is delivered, is to:
 
 The power system is modeled around a common 12V system. Relays are used to route power for emergency stop, charging, or other reasons. The 12V is split into 5V and 3.3V using voltage regulators to power the raspberry pi, Arduino, pololu motor driver, LED matrix, servos, fan, and the sabertooth motor driver.
 
-![](docs/diagrams/Power%20System.jpg)
+![](pics/PowerSystem.jpg)
 
 The type of battery that we used for R2D2 is the Motorcycle Battery called Battery Tender Lithium Battery from Deltran. This battery is made from Lithium Iron Phosphate and supplies 12V with 26-35 Amps of power. This allows us to power all the components in R2D2 as well as providing power to the motors, which take up majority of the current.
 
@@ -27,11 +27,11 @@ The type of battery that we used for R2D2 is the Motorcycle Battery called Batte
 
 The system data shows the wiring between the pi and all of the sensors and effectors. Most of the communications operates at 3.3v, however, there is a USB serial that operates at 5v (5V TTL). The pi uses all of the buses available to it: I2C at 100 Hz, SPI, and USB. The PWM to drive the servos is off loaded to a hardware servo controller board. Similarly, the PWM which drives the motors is offloaded to 2 different motor controllers (Sabertooth and SMC).
 
-![](docs/diagrams/Controls%20System.jpg)
+![](pics/ControlsSystem.jpg)
 
 ## Software Operating Modes
 
-![](docs/diagrams/SoftwareFlowChart.jpg)
+![](pics/SoftwareFlowChart.jpg)
 
 The system shall follow the transition diagram shown above with the following definitions:
 
@@ -118,7 +118,7 @@ This was the next level and allowed development/testing against the exact hardwa
 
 # Building
 
-Many of the hindges, mounting brackets, etc were designed and 3d printed. The largest design was the 2 rear feet. They were completely designed and 3d printed. They were painted using Rust-Oleum paint and primer. 
+Many of the hindges, mounting brackets, etc were designed and 3d printed. The largest design was the 2 rear feet. They were completely designed and 3d printed. They were painted using Rust-Oleum paint and primer.
 
 <img src="pics/3d-print-1.jpg" width="400px">
 
@@ -197,6 +197,3 @@ Mounts for all of the parts were 3d printed and epoxied to the dome. Then the el
 <img src="pics/dev-20.jpg" width="400px">
 
 <img src="pics/dev-21.jpg" width="400px">
-
-
-
