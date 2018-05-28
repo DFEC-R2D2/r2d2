@@ -1,11 +1,17 @@
 <p><img src="pics/header.jpg" width="100%"></p>
 <h1 id="r2-d2-senior-design-project">R2-D2 Senior Design Project</h1>
-<p>ALL UPDATED FILES CAN BE FOUND IN THE FOLDER LABELED &quot;FINAL&quot;</p>
 <p>This repo documents the progress of the R2-D2 design for the 2017-2018 class year. R2-D2's purpose, once it is delivered, is to:</p>
 <ul>
 <li>Serve as an example of multi-disciplinary engineering</li>
 <li>Support internal events like: Major's Night, DF events, and DFEC events</li>
 <li>Support external events like: STEM outreach and recruiting events.</li>
+</ul>
+<h1 id="team">Team</h1>
+<ul>
+<li>C1C Anthony Talosaga: power system and software</li>
+<li>C1C Hwi Tae Kim: software</li>
+<li>C1C Brayden Thomas: mechanical design and overall build</li>
+<li>C1C Mario Bracamonte: mechanical design and electrical PCD design/construction</li>
 </ul>
 <h1 id="architecture">Architecture</h1>
 <h2 id="power">Power</h2>
@@ -31,7 +37,7 @@
 <li><strong>Off:</strong> The off mode of R2D2 is when R2D2 is powered off or without any power source. This means that none of the operations are possible, and R2D2 non-functional.</li>
 <li><strong>Standby:</strong> The standby mode of R2D2 is when R2D2 is remaining idle. None of the motors or the sensors are working in this mode. The Standby mode operates to allow users the ability to fix problems. It is the default mode upon turning R2D2 on.</li>
 <li><strong>Remote Controlled:</strong> The remote mode of R2D2 can be controlled through the PS4 controller. The instructions on how to connect the PS4 controller to R2D2 can be found in the operational manual. All functionalities of R2D2 is present in this mode.</li>
-<li><strong>Display:</strong> The display mode of R2D2 is used to showcase R2D2. This means that R2D2 is not capable of moving, because it is in display mode. The display mode will respond to people that are close to R2D2.</li>
+<li><strong>Static Display:</strong> The display mode of R2D2 is used to showcase R2D2. This means that R2D2 is not capable of moving, because it is in display mode. The display mode will respond to people that are close to R2D2.</li>
 </ul>
 <h1 id="software">Software</h1>
 <p>R2 is written primarily in python. The following libraries were developed for R2-D2:</p>
@@ -47,51 +53,122 @@
 <li><a href="https://pypi.python.org/pypi/opencvutils">opencvutils</a></li>
 <li><a href="https://pypi.python.org/pypi/nxp-imu">nxp_imu</a></li>
 </ul>
-<p>The following was created for the purpose of R2D2's code simplicity, which combines the above codes into one python library file:</p>
+<p>Folder structure</p>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">r2d2</span>
+<span class="kw">|</span><span class="ex">-</span> final_design
+   <span class="kw">|</span><span class="ex">-</span> arduino
+   <span class="kw">|</span><span class="ex">-</span> mechanical
+   <span class="kw">|</span><span class="ex">-</span> node
+   <span class="kw">|</span>   <span class="kw">|</span><span class="ex">-nodejs</span>
+   <span class="kw">|</span>     <span class="kw">|</span><span class="ex">-</span> scripts
+   <span class="kw">|</span>     <span class="kw">|</span><span class="ex">-</span> movies
+   <span class="kw">|</span>     <span class="kw">|</span><span class="ex">-</span> pics
+   <span class="kw">|</span><span class="ex">-</span> python
+      <span class="kw">|</span><span class="ex">-</span> clips
+      <span class="kw">|</span><span class="ex">-</span> library
+      <span class="kw">|</span><span class="ex">-</span> states</code></pre></div>
 <ul>
-<li><a href="https://github.com/DFEC-R2D2/r2d2/blob/master/final_design/code/library.py">library</a></li>
-</ul>
-<p>The sound files that R2D2 plays can be loaded in with the clips sound files and through the sounds.py with the extension of <code>clips.json</code>, which initializes the sound files to the sounds.py file.</p>
+<li><code>arduino</code>: contains the Arduino code. The Arduino talks to the ultrasound sensors and measures the battery voltage</li>
+<li><code>mechanical</code>: containes STL files of parts designed for R2</li>
+<li><code>node</code>: R2's webpage is programmed using nodejs. The <code>script</code> folder contains 2 scripts to:
 <ul>
-<li><a href="https://github.com/DFEC-R2D2/r2d2/blob/master/final_design/code/sounds.py">sounds</a></li>
-</ul>
-<p>The R2D2 code can be found in the directory called Final with the python file named run.py.</p>
+<li><code>build_webpages.sh</code>: generate the webpage html files from Markdown and installs them in the correct location.</li>
+<li><code>gen_qr_code.py</code>: generate a QR code to enable people to easily access R2's webpage.</li>
+</ul></li>
+<li><code>python</code>: this is the main <em>robot</em> code for R2. The main program is <code>run.py</code>.
 <ul>
-<li><a href="https://github.com/DFEC-R2D2/r2d2/blob/master/final_design/code/run.py">run</a></li>
+<li><code>clips.json</code>: is a list of available Star Wars sound clips R2 can play</li>
+</ul></li>
 </ul>
 <p>Currently, the Raspberry Pi 3 image that we created allows R2D2 to automatically run this code when booted on. All the USB devices that are connected to the R2D2 are based on our actual model, and would need to be changed to match the serial information of the new device if you are considering making another R2D2. If needed, the image file can be acquired through the DFEC Department Instructor Major Kevin Walchko.</p>
-<p>The functions that are created for R2D2 can be followed below:</p>
+<p>R2 has 3 primary states:</p>
 <ul>
-<li><strong>random_char(length):</strong> This function creates a random character string with specified length as a input to use with TTastromech library. It receives as a input a length in integer, and outputs a string of that specified length.</li>
-<li><strong>standby(<code>standbyflag</code>):</strong> This function is the standby mode function, it receives the <code>standbyflag</code>, which is set by the keypad on R2D2. This flag is set when 1 is pressed, and continues to be set until R2D2 is put into another mode. At this stage, R2D2 is sitting idle until another mode is pressed. This means that R2D2 will have no motor controls, and will not be reading from any of its sensor. No command can be given, unless its given predefined emotions from buttons 4, 5, and 6.</li>
-<li><strong>static(<code>staticflag</code>):</strong> This function is the static mode function, it receives the <code>staticflag</code>, which is set by the keypad on R2D2. This flag is set when 2 is pressed, and continues to be set until R2D2 is put into another mode. The static display mode ensures that R2D2 does not have any motor controls, but reads from its sensors. All functions are available on static display mode except for the motors.</li>
-<li><strong>remote(<code>remoteflag</code>):</strong> This function is the remote mode function, it receives the <code>remoteflag</code>, which is set by the keypad on R2D2. This flag is set when 3 is pressed, and continues to be set until R2D2 is put into another mode. The remote mode ensure that R2D2 has full capabilities, such that the motor control works, and all its functionalities are present. R2D2 will be controlled through the PS4 controller. The instructions for connecting the PS4 controller to R2D2 can be found in the operations manual.</li>
-<li><strong>reboot(<code>rebootflag</code>):</strong> This function is the reboot function. This can be called at any mode and will reboot R2D2. This function receives the <code>rebootflag</code> from the button *. Once this <code>rebootflag</code> is set, the function calls on a reboot command to the terminal, hence terminating all running processes and restarting the raspberry pi 3.</li>
-<li><strong>shutdown(<code>shutdownflag</code>):</strong> This function is the shutdown function. This can be called at any mode and will reboot R2D2. This function receives the <code>shutdownflag</code> from the button #. Once this <code>shutdownflag</code> is set, the function calls on a shutdown command to the terminal, hence terminating all running processes and shutting down the raspberry pi 3.</li>
+<li><strong>standby():</strong> This function is the standby mode function and the default state of R2. Standby does nothing but <em>standby</em> for something to happen. If there is an error during operation, R2 switches from his current operating mode and falls into standby. Since standby does nothing, it is seen as the safest mode.</li>
+<li><strong>static():</strong> This function is the static mode. Static mode is the display mode and it is designed not to allow the leg motors to move. Infact, the electrical design flips a relay and cuts off leg motor power in this state. Only the dome motor and the servos are allowed to move in this state.</li>
+<li><strong>remote():</strong> This function is the remote mode function, it receives the <code>remoteflag</code>, which is set by the keypad on R2D2. This flag is set when 3 is pressed, and continues to be set until R2D2 is put into another mode. The remote mode ensure that R2D2 has full capabilities, such that the motor control works, and all its functionalities are present. R2D2 will be controlled through the PS4 controller. The instructions for connecting the PS4 controller to R2D2 can be found in the operations manual.</li>
+</ul>
+<table>
+<thead>
+<tr class="header">
+<th>State</th>
+<th>Dome Motor</th>
+<th>Leg Motors</th>
+<th>Audio</th>
+<th>Camera</th>
+<th>LEDS/Lights</th>
+<th>Servos</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Standby</td>
+<td></td>
+<td></td>
+<td>X</td>
+<td></td>
+<td>X</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>Remote</td>
+<td>X</td>
+<td>X</td>
+<td>X</td>
+<td></td>
+<td>X</td>
+<td>X</td>
+</tr>
+<tr class="odd">
+<td>Static</td>
+<td>X</td>
+<td></td>
+<td>X</td>
+<td>X</td>
+<td>X</td>
+<td>X</td>
+</tr>
+</tbody>
+</table>
+<p>Helper functions:</p>
+<ul>
+<li><strong>reboot():</strong> This function is the reboot function.</li>
+<li><strong>shutdown():</strong> This function is the shutdown function.</li>
+</ul>
+<p>R2 has to have some personnality, so he is setup with these <em>emotions</em>:</p>
+<ul>
 <li><strong>happy():</strong> This function does not have any inputs or outputs, as the commands are given from the function. The happy function turns on the green LED on the 8x8 matrix LED pads, and also spins the dome. The top hatch of R2D2 will open in a wave and close in a wave. This can be either called from the keypad button 4, or from the arrow hat on the controller.</li>
 <li><strong>confused():</strong> This function does not have any inputs or outputs, as the commands are given from the function. The happy function turns on the orange LED on the 8x8 matrix LED pads. This can be either called from the keypad button 5, or from the arrow hat on the controller.</li>
 <li><strong>angry():</strong> This function does not have any inputs or outputs, as the commands are given from the function. The happy function turns on the red LED on the 8x8 matrix LED pads, and plays the imperial theme sound. Once the theme sound is complete, it opens the top hatch of R2D2 and closes it afterwards. This can be either called from the keypad button 6, or from the arrow hat on the controller.</li>
-<li><strong>battery(<code>battflag</code>):</strong> This function is automatically ran when R2D2 is powered on. It receives the <code>battflag</code>, which is set when R2D2 is powered on. This enables the user to gauge the battery level of the battery. This is only shown when the battery is plugged in. If it is powered through the wall cable, then it will display all red.</li>
-<li><strong>mode(<code>standbyflag</code>, <code>staticflag</code>, <code>remoteflag</code>):</strong> This function is automatically ran when R2D2 is powered on. It receives the status of the standby, static, and remote flags and based on those flags, will turn on colors corresponding to the mode of R2D2.</li>
 </ul>
 <h1 id="project-in-pictures">Project in Pictures</h1>
+<p>The development of R2 followed a standard Aerospace process of building/testing a breadboard, brassboard, and final design. These follow the ideas of form, fit, and function.</p>
+<ul>
+<li><strong>Breadboard</strong>: This was the first incarnation of R2. As seen below, it consisted of HW/SW that allowed the team to design/test the functional aspects of R2. The breadboard contained either the actual HW R2 would use or surrogate hardware that was in some way representative (as best as we knew it at the time of the build) of the final design.</li>
+<li><strong>Brassboard</strong>: This was the second incarnation of R2. Building upon the breadboard HW/SW, all surrogate items were swapped out for the correct items. For example, the breadboard had 3 small 12V motors which represented the dome and leg motors. Now in the brassboard, these small motors were replaced with the final R2 motors. The brassboard now allowed us to test both function and fit. Fit refers to the interfaces, both HW and SW.</li>
+<li><strong>Final Design</strong>: Usually you would go to a prototype in the Aerospace world, but here we went straight to the final design. This final design now allowed us to test HW/SW form, fit, and function. Form refers to either the physical dimension (e.g., the size of a box) or a SW size/processing standpoint for our storage system/CPU.</li>
+</ul>
 <h2 id="functional-development-breadboard">Functional Development: Breadboard</h2>
-<p>This was R2's electronics on a box. It allowed full software design/testing with similar hardware without worrying about actually having R2's body built.</p>
+<p>This was R2's electronics on a box. It allowed full software design/testing with similar hardware without worrying about actually having R2's body built. Although this looks nothing like an R2 unit, it allowed the team to develop a decent first version of R2. Basic functionallity was achieved including:</p>
+<ul>
+<li>Face detection using OpenCV and the PiCamera</li>
+<li>PS4 controller integration, with analog sticks driving motors, buttons moving servos and making R2 sounds</li>
+</ul>
 <p><img src="pics/bread-board-1.jpg" height="400px"></p>
 <p><img src="pics/bread-board-2.jpg" height="400px"></p>
 <p><img src="pics/bread-board-3.jpg" width="400px"></p>
 <p><img src="pics/bread-board-4.jpg" width="400px"></p>
 <p><img src="pics/bread-board-5.jpg" width="400px"></p>
 <h1 id="fit-development-brassboard">Fit Development: Brassboard</h1>
-<p>This was the next level and allowed development/testing against the exact hardware and interfaces in R2.</p>
+<p>This was the next level and allowed development/testing against the exact hardware and interfaces in R2. This allowed the team setup the full wiring harness with relays, test out PCBs designed (there were several versions), test out the dome slip ring wiring harness and ensure full HW and SW integration.</p>
 <p><img src="pics/brass-board-1.jpg" width="400px"></p>
 <p><img src="pics/brass-board-2.jpg" width="400px"></p>
 <p><img src="pics/brass-board-3.jpg" width="400px"></p>
 <p><img src="pics/brass-board-4.jpg" width="400px"></p>
 <p><img src="pics/brass-board-5.jpg" width="400px"></p>
 <p><img src="pics/brass-board-6.jpg" width="400px"></p>
-<h1 id="building">Building</h1>
-<p>Many of the hindges, mounting brackets, etc were designed and 3d printed. The largest design was the 2 rear feet. They were completely designed and 3d printed. They were painted using Rust-Oleum paint and primer.</p>
+<h1 id="final-design-and-building">Final Design and Building</h1>
+<p>Everything from the brassboard was duplicated and built into the R2. The brassboard was <strong>not</strong> dismantled, but left intact for debugging. The team needed a setup that we could fall back on if HW/SW problems were encountered in the final build.</p>
+<p>Many of the hindges, mounting brackets, etc were designed and 3d printed. The largest design was the 2 rear feet. They were completely designed and 3d printed. Then the motors, wheels, etc were mounted inside and they were painted using Rust-Oleum paint and primer. Unfortunately there were numerous little errors that weren't discovered until everyting was assembled and we had to redesign and rebuild the feet. The feet also took about 2-3 days to print just one ... it was a very slow process.</p>
 <p><img src="pics/3d-print-1.jpg" width="400px"></p>
 <p><img src="pics/3d-print-2.jpg" width="400px"></p>
 <p><img src="pics/3d-print-3.jpg" width="400px"></p>
