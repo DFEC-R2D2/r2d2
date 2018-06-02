@@ -37,11 +37,11 @@ class Keypad(object):
 			tmpRead = GPIO.input(self.ROW[i])
 			if tmpRead == 0:
 				rowVal = i
-
+				
 		# if rowVal is not 0 thru 3 then no button was pressed and we can exit
 		if rowVal < 0 or rowVal > 3:
 			self.exit()
-			return
+			return None
 
 		# Convert columns to input
 		for j in range(len(self.COLUMN)):
@@ -62,7 +62,7 @@ class Keypad(object):
 		# if colVal is not 0 thru 2 then no button was pressed and we can exit
 		if colVal < 0 or colVal > 2:
 			self.exit()
-			return
+			return None
 
 		# Return the value of the key pressed
 		self.exit()

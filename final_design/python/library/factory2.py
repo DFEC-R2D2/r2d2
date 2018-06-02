@@ -2,25 +2,25 @@
 from pysabertooth import Sabertooth
 from smc import SMC
 from library import Sounds
-from library import Arduino
+# from library import Arduino
 from library import LEDDisplay
 from library import Servo, FlashlightPWM
 import os
 # from library import Arduino
 
-real_r2 = False
+real_r2 = True
 
 # set path to hardware
 # True: real R2
 # False: breadboard
 if real_r2:
-	arduino_port = '/dev/serial/by-id/usb-Arduino__www.arduino.cc__0042_95432313138351F00180-if00'
+	# arduino_port = '/dev/serial/by-id/usb-Arduino__www.arduino.cc__0042_95432313138351F00180-if00'
 	leg_motors_port = '/dev/serial/by-id/usb-Dimension_Engineering_Sabertooth_2x32_16001878D996-if01'
 	dome_motor_port = '/dev/serial/by-id/usb-Pololu_Corporation_Pololu_Simple_Motor_Controller_18v7_52FF-6F06-7283-5255-5252-2467-if00'
 	servo_range = (150, 400)
 	led_type = 0
 else:
-	arduino_port = 'loop://'
+	# arduino_port = 'loop://'
 	leg_motors_port = '/dev/serial/by-id/usb-Dimension_Engineering_Sabertooth_2x32_16004F410010-if01'
 	dome_motor_port = '/dev/serial/by-id/usb-Pololu_Corporation_Pololu_Simple_Motor_Controller_18v7_50FF-6D06-7085-5652-2323-2267-if00'
 	servo_range = (90, 400)

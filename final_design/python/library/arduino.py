@@ -1,3 +1,4 @@
+from __future__ import division, print_function
 import serial as pyserial
 
 
@@ -20,3 +21,18 @@ class Arduino(object):
 
 	def write(self, data):
 		self.serial.write(data)
+
+	def getBattery(self):
+		self.serial.write('2')
+		d = self.serial.readline()
+		d = 14.9/5*d  # arduino sends back max 5V, scale to 12V battery
+		return d
+
+	def getUltraSounds(self):
+		ret = []
+		arduinoSerialData.write('1')
+		for _ in range(4):
+			d = arduinoSerialData.readline()
+			if d:
+				ret.append(float(d))
+		return ret

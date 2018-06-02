@@ -1,16 +1,15 @@
+#!/usr/bin/env python
 
-from __future__ import division
 from __future__ import print_function
-import os
-import numpy as np
 from time import sleep
+import numpy as np
+import os
 
 try:
 	from Adafruit_LED_Backpack.Matrix8x8 import Matrix8x8
 	from Adafruit_LED_Backpack.BicolorMatrix8x8 import BicolorMatrix8x8
 	from Adafruit_LED_Backpack.BicolorMatrix8x8 import RED, GREEN
 except ImportError:
-	# Fake i2c class for testing on non-raspberry pi hardware
 	class fake_i2c(object):
 		buffer = []
 		def __init__(self, **kwargs): pass
@@ -29,24 +28,21 @@ except ImportError:
 		def __init__(self, **kwargs): pass
 
 
+# OFF = 0
+# GREEN = 1
+# RED = 2
+# YELLOW = 3
+
 
 class LEDDisplay(object):
 	"""
-	This class handles the LED matrix, either mono color or bi-color:
-	mono: 0
-	bi: 1
-
-	OFF    = 0
-	GREEN  = 1
-	RED    = 2
-	YELLOW = 3
+	This class
 	"""
 	MONO = 0
 	BI = 1
 
 	def __init__(self, i2c_addr=0x70, led_type=0):
 		# self.delay = delay
-		# print(i2c_addr,led_type)
 		self.im = []
 		if led_type == self.MONO:
 			limit = 2
@@ -123,11 +119,11 @@ class LEDDisplay(object):
 				self.next = 0
 		else:
 			self.setRandom()
-			# self.setSolid()
+			#self.setSolid()
 
 		# self.next += 1
 		# if self.next == len(self.im):
-			#  self.next = 0
+                  #  self.next = 0
 
 	def write(self):
 		self.display._device.writeList(0, self.display.buffer)
@@ -139,74 +135,50 @@ class LogicFunctionDisplay(object):
 	"""
 	MONO = 0
 	BI = 1
-	psi = None
-	fld_top = None
-	fld_bottom = None
-	rld = None
-	current_top_color = -1
-	current_bottom_color = -1
 
-	def __init__(self, data):
-		"""
-		Colors
-		OFF    = 0
-		GREEN  = 1
-		RED    = 2
-		YELLOW = 3
+	def __init__(self, led_addrs, led_type=0):
+		self.leds = []
+		for addr in led_addrs:
+			if led_type == self.MONO:
+				led = LEDDisplay(i2c_addr=addr, led_type=0)
+			elif led_type == self.BI:
+				led = LEDDisplay(i2c_addr=addr, led_type=1)
+			else:
+				raise Exception('Wrong type of led display')
 
-		types:
-		mono: 0
-		rgb: 1
-		data = {
-			psi: [address, type]               # process state indicator
-			fld: [[addr, addr], [type, type]]  # front logic display
-			rld: [[addr, ...], [type, ...]]    # rear logic display
-		}
-		"""
-		if data['psi']:
-			self.psi = LEDDisplay(i2c_addr=data['psi'][0], led_type=data['psi'][1])
-		if data['fld']:
-			addr, type = data['fld'][0]
-			# print('led',addr,type)
-			self.fld_top = LEDDisplay(i2c_addr=addr, led_type=type)
-			addr, type = data['fld'][1]
-			# print('led',addr,type)
-			self.fld_bottom = LEDDisplay(i2c_addr=addr, led_type=type)
-		if data['rld']:
-			rld = []
-			for (a, t) in data['rld']:
-				rld.append(LEDDisplay(i2c_addr=a, led_type=t))
-			self.rld = rld
+			self.leds.append(led)
 
-	def __del__(self):
-		if self.psi: self.psi.clear()
-		if self.fld_top: self.fld_top.clear()
-		if self.fld_bottom: self.fld_bottom.clear()
-		if self.rld:
-			for led in self.rld:
-				led.clear()
+	def update(self):
+		for led in self.leds:
+			led.update()
 
-	def setPSI(self, color):
-		if self.psi:
-			self.psi.setSolid(color)
+	def setBrightness(self, bright):
+		if 0 > bright > 15:
+			return
+		for led in self.leds:
+			led.display.set_brightness(bright)
 
-	def setFLD(self, top_color=None, bottom_color=None):
-		# update only if they exist AND there is a color change
-		if top_color and self.fld_top:
-			if self.current_top_color != top_color:
-				self.fld_top.setSolid(int(top_color))
-				self.current_top_color = top_color
-		if bottom_color and self.fld_bottom:
-			if self.current_bottom_color != bottom_color:
-				self.fld_bottom.setSolid(int(bottom_color))
-				self.current_bottom_color = bottom_color
 
-	def setRLD(self):
-		for led in self.rld:
-			led.setRandom()
-
-	# def setBrightness(self, bright):
-	# 	if 0 > bright > 15:
-	# 		return
-	# 	for led in self.leds:
-	# 		led.display.set_brightness(bright)
+if __name__ == "__main__":
+    
+    while 1:
+        choice = input("Enter LED option --> (x, y, color)\n>>")
+        led = LEDDisplay(0x70,1)
+        for x in [0, 1, 2, 3, 4, 5, 6, 7]:
+            for y in [0, 1, 2, 3, 4, 5, 6, 7]:
+                if x == choice[0] and y == choice[1]:
+                    led.set(x, y, choice[2])
+                else:
+                    led.set(x,y,1)
+        led.write()
+        sleep(1)
+        led.clear()
+        
+#
+# 	try:
+# 		led.start()
+#
+# 	except KeyboardInterrupt:
+# 		print('<<<<<<<< keyboard >>>>>>>>>>>')
+# 		led.joing()
+# 		led.terminate()

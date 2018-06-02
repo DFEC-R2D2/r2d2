@@ -1,6 +1,15 @@
-import Adafruit_PCA9685.PCA9685 as PCA9685
+#!/usr/bin/env python
+##############################################
+# The MIT License (MIT)
+# Copyright (c) 2016 Kevin Walchko
+# see LICENSE for full details
+##############################################
 
-# PWM Initialization
+from __future__ import print_function
+from __future__ import division
+import Adafruit_PCA9685.PCA9685 as PCA9685
+from time import sleep
+
 global_pwm = PCA9685()  # don't like global variables!!
 global_pwm.set_pwm_freq(50)  # fix to 50 Hz, should be more than enough
 
@@ -17,9 +26,7 @@ class PWM(object):
 
 	def __init__(self, channel):
 		"""
-		Initializes the low level
 		"""
-		global global_pwm
 		self.pwm = global_pwm
 		if 0 > channel > 15:
 			raise Exception('Servo channel out of range[0-15]: {}'.format(channel))
@@ -35,18 +42,12 @@ class PWM(object):
 	@staticmethod
 	def all_stop():
 		"""
-		This stops all servos, it is a static method, so it can be called without
-		an object.
+		This stops all servos
 		"""
-		global global_pwm
 		global_pwm.set_all_pwm(0, 0x1000)
 
 	@staticmethod
 	def set_pwm_freq(f):
-		"""
-		This the pwm frequency, it is a static method, so it can be called without
-		an object. RC servos typically work fine with 50-60 Hz.
-		"""
 		global_pwm.set_pwm_freq(f)
 
 	def stop(self):
@@ -116,47 +117,32 @@ class Servo(PWM):
 		pulse = self.angleToPWM(self._angle)
 		self.pwm.set_pwm(self.channel, 0, pulse)
 
-	def setMinMax(self, mina, maxa):
-		if mina > maxa:
-			raise Exception("Servo min angle > max angle")
-		self.minAngle = mina
-		self.maxAngle = maxa
 
-	def goMaxAngle(self):
-		self._angle = self.maxAngle
-		pulse = self.angleToPWM(self._angle)
-		self.pwm.set_pwm(self.channel, 0, pulse)
-
-	def goHalfAngle(self):
-		self._angle = (self.maxAngle - self.maxAngle)/2
-		pulse = self.angleToPWM(self._angle)
-		self.pwm.set_pwm(self.channel, 0, pulse)
-
-	def goMinAngle(self):
-		self._angle = self.minAngle
-		pulse = self.angleToPWM(self._angle)
-		self.pwm.set_pwm(self.channel, 0, pulse)
-
-
-class FlashlightPWM(object):
-	"""
-	This handles low level flashlight pwm controller and timing
-	"""
-	pwm_max = 3000  # Max pulse length out of 4096
-	pwm_min = 0  # Min pulse length out of 4096
-
-	def __init__(self, channel):
-		self.pwm = global_pwm
-		if 0 > channel > 15:
-			raise Exception('Servo channel out of range[0-15]: {}'.format(channel))
-		self.channel = channel
-
-	def stop(self):
-		self.pwm.set_pwm(self.channel, 0, 0x1000)
-
-	def set(self, light, value):
-		"""
-		light - which light
-		value - 0-4095
-		"""
-		pass
+if __name__ == "__main__":
+        servos = [Servo(0), Servo(1), Servo(2), Servo(3), Servo(4)]
+	s0 = servos[0]
+	s1 = servos[1]
+	s2 = servos[2]
+	s3 = servos[3]
+	s4 = servos[4]
+        while 1:
+            choice = input("Pick options:\n7-left\n8-center\n9-right\n>>")
+            if choice == 7:
+                s0.angle = 0
+                s1.angle = 0
+                s2.angle = 0
+                s3.angle = 0
+                s4.angle = 0
+            if choice == 8:
+                s0.angle = 90
+                s1.angle = 90
+                s2.angle = 90
+                s3.angle = 90
+                s4.angle = 90
+            if choice == 9:
+                s0.angle = 150
+                s1.angle = 150
+                s2.angle = 150
+                s3.angle = 150
+                s4.angle = 150
+            sleep(1)
