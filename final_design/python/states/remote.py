@@ -10,6 +10,7 @@ from emotions import angry, happy, confused
 # from smc import SMC
 from library import LEDDisplay
 from library import factory
+from library import reset_all_hw
 
 # Leg Motor Speed Global
 global_LegMotor = 70
@@ -325,11 +326,6 @@ def remote_func(hw, ns):
 	audio = hw['audio']
 	audio.speak('start')
 
-	# what is this???
-	# GPIO.setmode(GPIO.BCM)
-	# GPIO.setwarnings(False)
-	# GPIO.setup(26, GPIO.OUT)
-
 	while ns.current_state == 3:
 		print('remote ...')
 		spd = random.randint(0, 40)
@@ -475,4 +471,7 @@ def remote_func(hw, ns):
 		except KeyboardInterrupt:
 			print('js exiting ...')
 			return
+
+	# exiting, reset all hw
+	reset_all_hw(hw)
 	return

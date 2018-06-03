@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # Authors:
 # Kevin Walchko
-# Hwi Tae Kim
 
 
 # Initialiation All Library Files
@@ -15,61 +14,121 @@ import multiprocessing as mp
 # import numpy as np
 import os
 # import string
-# import random
+import random
 from subprocess import call
+from subprocess import check_output
 from math import sqrt
 
 # python modules from pip for hardware drivers
 # from pysabertooth import Sabertooth
 # from smc import SMC
 from nxp_imu import IMU
-import RPi.GPIO as GPIO  # remove and use Flashlight!!!
+# import RPi.GPIO as GPIO  # remove and use Flashlight!!!
 
 # get drivers from library
 from library import Sounds
 from library import Arduino
 from library import Keypad
 # from library import Trigger, Axis, PS4, Joystick
-# from library import Servo, FlashlightPWM
-# from library import LEDDisplay
-# from library import LogicFunctionDisplay
+from library import Servo, FlashlightPWM
+from library import LEDDisplay
+from library import LogicFunctionDisplay
 from library import factory
+from library import PWM
+from library import ButtonLED
+from library import FlashlightGPIO
 
 # States
-from states.remote import remote
-from states.standby import standby
-from states.static import static
+from states.remote import remote_func
+from states.standby import standby_func
+from states.static import static_func
 
 # Emotions
 from states.emotions import angry, happy, confused
 
+def getHostSerialNumber():
+	ssn = None
+	a=check_output(["cat", '/proc/cpuinfo'])
+	for s in a.split('\n'):
+		if s.find('Serial') > -1:
+			ssn = s.split()[2]
+	return ssn
 
-# set path to hardware
-# True: real R2
-# False: breadboard
-if False:
+ssn = getHostSerialNumber()
+
+if ssn == '1':  # real R2D2
 	arduino_port = '/dev/serial/by-id/usb-Arduino__www.arduino.cc__0042_95432313138351F00180-if00'
 	leg_motors_port = '/dev/serial/by-id/usb-Dimension_Engineering_Sabertooth_2x32_16001878D996-if01'
 	dome_motor_port = '/dev/serial/by-id/usb-Pololu_Corporation_Pololu_Simple_Motor_Controller_18v7_52FF-6F06-7283-5255-5252-2467-if00'
-else:
+
+	# real R2
+	# process state indicator
+	# they didn't include ... :(
+	# front logic display
+	# 0x70
+	# 0x73
+	# back
+	# 0x75,0x71,0x72,0x74
+	led_data = {
+		'psi': None,  # process state indicator
+		'fld': [      # front logic display (top, bottom)
+			[0x70, 1],
+			[0x73, 1]
+		],
+		'rld': [      # rear logic display (left to right)
+			[0x75,1],
+			[0x71,1],
+			[0x72,1],
+			[0x74,1]
+		]
+	}
+
+	servo_limits = {
+		0: [30, 60], # opened/closed
+		1: [94, 124],
+		2: [20, 49],
+		3: [30, 60],
+		4: [15, 45],
+	}
+
+	rpi_pins = {
+
+	}
+elif ssn == '0000000019b26150':  # breadboard system
 	arduino_port = 'loop://'
 	leg_motors_port = '/dev/serial/by-id/usb-Dimension_Engineering_Sabertooth_2x32_16004F410010-if01'
 	dome_motor_port = '/dev/serial/by-id/usb-Pololu_Corporation_Pololu_Simple_Motor_Controller_18v7_50FF-6D06-7085-5652-2323-2267-if00'
+	led_data = {
+		'psi': [0x75, 0],               # process state indicator
+		'fld': [[0x70, 1], [0x73, 0]],  # front logic display (top, bottom)
+		'rld': [[0x71,0], [0x72,0], [0x74,0]]    # rear logic display (left to right)
+	}
 
+	servo_limits = {
+		0: [30, 60], # opened/closed
+		1: [94, 124],
+		2: [20, 49],
+		3: [30, 60],
+		4: [15, 45],
+	}
+else:
+	print("Couldn't get Host serial number from /proc/cpuinfo ... exiting")
+	print("Function return:", ssn)
+	exit(1)
 
 # Reboots R2D2
-def reboot(namespace):
-	namespace.audio.sound('shutdown')
-	# from subprocess import call
+def reboot():
+	# namespace.audio.sound('shutdown')
 	call("sudo reboot now", shell=True)
+	time.sleep(3)
 	return
 
 
 # Shutdowns R2D2
-def shutdown(namespace):
-	namespace.audio.sound('shutdown')
-	# from subprocess import call
+def shutdown():
+	# namespace.audio.sound('shutdown')
 	call("sudo shutdown", shell=True)
+	time.sleep(3)
 	return
 
 
@@ -82,187 +141,208 @@ def normalize(v):
 	return ret
 
 
-def background(flag, ns):
-	# setup arduino
-	# print("background process started")
-	print("Starting:", mp.current_process().name)
-	arduinoSerialData = Arduino(arduino_port, 19200)
-	imu = IMU(gs=4, dps=2000, verbose=False)
-
-	(leds, _, _, _, _) = factory(['leds'])
-
-	# print('flag', flag.is_set())
+def arduino_proc(flag, ns):
+	ser = Arduino(arduino_port, 19200)
 
 	while flag.is_set():
-		a, m, g = imu.get()
-		ns.accels = a  # [x,y,z]
-		ns.mags = m
-		ns.gyros = g
-
-		a = normalize(a)
-		# seems that 0.80 is pretty big tilt
-		if a[2] < 0.85:
-			ns.safety_kill = True
-			print(a)
-			print('<<< TILT >>>')
+		time.sleep(0.25)
 
 		# read battery
-		arduinoSerialData.write('2')
-		d = arduinoSerialData.readline()
+		ser.write('2')
+		d = ser.readline()
 		if d:
 			batt = float(d)
 			ns.battery = batt
+			print("battery", batt)
 
 		# read ultrasound
-		arduinoSerialData.write('1')
+		ser.write('1')
 		for u in [ns.usound0, ns.usound1, ns.usound2, ns.usound3]:
-			d = arduinoSerialData.readline()
+			d = ser.readline()
 			if d:
 				u = float(d)
 
+def i2c_proc(flag, ns):
+	"""
+	Everything attached to i2c bus goes here so we don't have to do semifores
+	"""
+	print("Starting:", mp.current_process().name)
+	imu = IMU(gs=4, dps=2000, verbose=False)
+	leds = LogicFunctionDisplay(led_data)
+	led_update = 0
+
+	servos = []
+	servo_angles = []
+	for id in range(5):
+		s = Servo(id)
+		s.setMinMax(*servo_limits[id])  # set open(min)/closed(max) angles
+		s.goMaxAngle()  # closed
+		# servo_angles.append(sum(servo_limits[id])/2)
+		servos.append(s)
+		servo_angles.append(s.angle)
+	# init namespace to have the same angles
+	ns.servo_angles = servo_angles
+	servos[1].stop()
+
+	b_led = ButtonLED(6,5,13)
+
+	# test ---------------------
+	# vals = [True]*3
+	# b_led.setRGB(*vals)
+	# time.sleep(3)
+	# for i in range(3):
+	# 	print(i)
+	# 	vals = [True]*3
+	# 	vals[i] = False
+	# 	b_led.setRGB(*vals)
+	# 	time.sleep(3)
+
+	while flag.is_set():
+		a, m, g = imu.get()
+		ns.accels = a  # accel [x,y,z] g's
+		ns.mags = m    # magnetometer [x,y,z] mT
+		ns.gyros = g   # gyros [x,y,z] rads/sec
+
+		# FIXME: real hw is at a funny oriendataion
+		# a = normalize(a)
+		# seems that 0.80 is pretty big tilt
+		# if a[2] < 0.85:
+		# 	ns.safety_kill = True
+		# 	print(a)
+		# 	print('<<< TILT >>>')
+
 		# update LEDs
-		fpsi = ns.logicdisplay['fpsi']
-		if fpsi == 0:
-			leds[0].setSolid(1)
-		elif fpsi == 1:
-			leds[0].setSolid(3)
-		elif fpsi == 2:
-			leds[0].setSolid(2)
+		# OFF    = 0
+		# GREEN  = 1
+		# RED    = 2
+		# YELLOW = 3
 
-		for led in leds[1:]:
-			led.setRandom()
+		led_update += 1
+		if led_update % 20 == 0:
+			led_update = 0
+			# print('current_state',ns.current_state)
+			cs, batt = ns.current_state, ns.battery
 
-		time.sleep(1)
+			if cs == 1:    # standby
+				csc = 2    # red
+				b_led.setRGB(True, False, False)
+			elif cs == 2:  # static
+				csc = 3    # yellow
+				b_led.setRGB(True, True, True)
+			elif cs == 3:  # remote
+				csc = 1    # green
+				b_led.setRGB(False, True, False)
 
-	# clean up
-	for led in leds:
-		led.clear()
+			# make something up for now
+			battc = random.randint(1,3)
 
-# Mode Monitor LED
-# def mode(standbyflag, staticflag, remoteflag, namespace):
-# 	while(modeflag.is_set()):
-# 		# modeled = LEDDisplay(0x75, 1)
-# 		modeled = namespace.leds[5]
-#
-# 		# Checks if mode is in Standby
-# 		if(standbyflag.is_set()):
-# 			modeled.clear()
-# 			for i in range(0, 8):
-# 				for j in range(0, 8):
-# 					modeled.set(i, j, 2)
-# 		# Checks if mode is in Static
-# 		elif(staticflag.is_set()):
-# 			modeled.clear()
-# 			for i in range(0, 8):
-# 				for j in range(0, 8):
-# 					modeled.set(i, j, 1)
-# 		# Checks if mode is in Remote
-# 		elif(remoteflag.is_set()):
-# 			modeled.clear()
-# 			for i in range(0, 8):
-# 				for j in range(0, 8):
-# 					modeled.set(i, j, 3)
-# 		# Displays blank if no Mode
-# 		else:
-# 			modeled.clear()
-# 			for i in range(0, 8):
-# 				for j in range(0, 8):
-# 					modeled.set(i, j, 2)
-# 		modeled.write()
-# 		time.sleep(2)
+			leds.setFLD(csc, battc)
+			leds.setRLD()
 
+		# update servos if the have changed
+		for nsa, sa, servo in zip(ns.servo_angles, servo_angles, servos):
+			if nsa == sa:
+				continue
+			sa = nsa
+			servo.angle = sa
+			time.sleep(0.1)
 
-def close_process(process, flag=None, timeout=0.1):
-	if flag:
-		flag.clear()
-	process.join(timeout=timeout)
-	if process.is_alive():
-		process.terminate()
+		if ns.servo_wave:
+			print('servo wave')
+			for s in servos:
+				s.goHalfAngle()
+				time.sleep(0.2)
+
+			servos[1].stop()
+			time.sleep(0.5)
+			for s in servos:
+				s.goMinAngle()
+				time.sleep(0.2)
+
+			servos[1].stop()
+			time.sleep(0.5)
+			ns.servo_wave = False
+
+	b_led.setRGB(False, False, False)
 
 
-def main_loop2(ns):
+def keypad_proc(flag, ns):
 	"""
-	This is the main loop. All it does is reads the keypad and looks for input.
-	The input effects which state the robot is in and basically allows async
-	inputs.
+	This thread handles the main keypad interface and sets the global state
+
+	Also, MIGHT, do ultrasound and battery
 	"""
-	print('Main loop')
+	print("Starting:", mp.current_process().name)
+	# arduinoSerialData = Arduino(arduino_port, 19200)
 
-	# background process talks to i2c and the microcontroller for safety. The
-	# data is pushed into global namespace memory for other processes to use
-	# as needed
-	bckground_flag = mp.Event()
-	bckground_flag.set()
-	bkgrd = mp.Process(name='background', target=background, args=(bckground_flag, ns,))
-	bkgrd.start()
+	# WARNING: GPIO is not thread/multiprocessor safe and these need to be
+	# in the same process ... or atleast I don't know how to handle them in
+	# different ones
+	# kp = Keypad()
+	# b_led = ButtonLED(6,5,13)
 
-	flag = mp.Event()
-	flag.set()
-	ps = mp.Process(name='standbymode', target=standby, args=(flag, ns,))
-	ps.start()
-	ns.current_state = 1
+	# test ---------------------
+	# for i in range(3):
+	# 	print(i)
+	# 	vals = [False]*3
+	# 	vals[i] = True
+	# 	b_led.setRGB(*vals)
+	# 	time.sleep(3)
 
-	kp = Keypad()
+	while flag.is_set():
+		time.sleep(0.1)
 
-	try:
-		while (True):
-			key = 2
-			# if R2 has not fallen over, they check input
-			if ns.safety_kill:
-				key = 1  # sommething wrong, go to standby
-			else:
-				# key = None
-				# key = kp.getKey()
-				if key is None:
-					key = ns.current_state
+		# key = kp.getKey()
+		# if key is not None:
+		# 	print('key:', key)
 
-			if key == ns.current_state:
-				time.sleep(0.5)
-			else:
-				# close down old state process
-				flag.clear()
-				time.sleep(0.1)
-				close_process(ps)
-				time.sleep(0.1)
+		# DEBUGGING CODE -----------
+		key = random.randint(1, 3)  # debug, pick random state
+		time.sleep(5)
+		# key = 2
+		# print('*'*10)
+		# print('* Key:', key)
+		# print('*'*10)
+		# ---------------------------
 
-				# setup new state process
-				flag.set()
-				time.sleep(0.1)
-				if key == 1:
-					ps = mp.Process(name='standbymode', target=standby, args=(flag, ns,))
-					ps.start()
-					ns.current_state = 1
+		# if R2 has not fallen over, then check input
+		if ns.safety_kill:
+			key = 1  # sommething wrong, go to standby
+		else:
+			if key in [1, 2, 3]:
+				ns.current_state = key
 
-				elif key == 2:
-					ps = mp.Process(name='staticmode', target=static, args=(flag, ns,))
-					ps.start()
-					ns.current_state = 2
+				# set power button led
+				# if key == 1:
+				# 	b_led.setRGB(True, False, False)
+				# elif key == 2:
+				# 	b_led.setRGB(True, True, True)
+				# elif key == 3:
+				# 	b_led.setRGB(False, True, False)
 
-				elif key == 3:
-					ps = mp.Process(name='remotemode', target=remote, args=(flag, ns,))
-					ps.start()
-					ns.current_state = 3
+			elif key in [4, 5, 6]:
+				ns.emotion = key
 
-				elif key == 4:
-					ns.emotions['happy'](ns.leds, ns.servos, ns.mc, ns.audio)
+			elif key == 8:
+				print("<<< got turn-off key press >>>")
+				ns.current_state = 0
+				# b_led.setRGB(False, False, False)
+				break
 
-				elif key == 5:
-					ns.emotions['confused'](ns.leds, ns.servos, ns.mc, ns.audio)
+			elif key == "#":
+				# FIXME: not sure the right way to do this cleanly
+				print("Shutting down")
+				ns.shutdown = True
+				ns.current_state = 0
+				# b_led.setRGB(False, False, False)
+				break
 
-				elif key == 6:
-					ns.emotions['angry'](ns.leds, ns.servos, ns.mc, ns.audio)
-
-	except KeyboardInterrupt:
-		flag.clear()
-		time.sleep(1)
-		close_process(ps)
-
-		bckground_flag.clear()
-		time.sleep(1)
-		close_process(bkgrd)
-
-
-
+			elif key == "%":
+				print("Rebooting now")
+				ns.current_state = 0
+				ns.reboot = True
+				# b_led.setRGB(False, False, False)
+				break
 
 
 if __name__ == '__main__':
@@ -273,61 +353,123 @@ if __name__ == '__main__':
 	##############################
 	# This section sets up global namespace
 
+	# OS commands
+	namespace.reboot = False
+	namespace.shutdown = False
+
+	# 0: stop
+	# 1: standby
+	# 2: static
+	# 3: remote
+	namespace.current_state = 1  # default into standy mode
+
 	# safety, R2 has fallen over, kill all motors and signal for help!!
 	namespace.safety_kill = False
 
-	# how many detects before person found
-	namespace.opencv_person_found = 5
+	# how many detects before a person is declared found
+	# OpenCV can have false posatives
+	namespace.opencv_person_found = 1
 
-	# setup emotions
-	namespace.emotions = {
-		'angry': angry,
-		'happy': happy,
-		'confused': confused
-	}
+	# 0: None
+	# 1: angry
+	# 2: happy
+	# 3: confused
+	namespace.emotion = 0
 
-	namespace.states = {
-		1: 'standby',
-		3: 'remote',
-		2: 'static'
-	}
+	# servo settings
+	namespace.servo_angles = [0]*5  # these will get reset when servos init
+	namespace.servo_wave = True
 
 	# ultra sonic sensors for safety
-	namespace.usound0 = 0
-	namespace.usound1 = 0
-	namespace.usound2 = 0
-	namespace.usound3 = 0
+	# namespace.usound0 = 0
+	# namespace.usound1 = 0
+	# namespace.usound2 = 0
+	# namespace.usound3 = 0
+	namespace.ultrasounds = [0]*4
 
-	# logic displays
-	# lfd: errors
-	#   0: green
-	#   1: yellow
-	#   2: red
-	# fpsi:
-	#   top: mode
-	#   botom: battery level
-	# rld: random
-	namespace.logicdisplay = {
-		'lfd': 0,   # front logic display: 0x71, 0x74
-		'fpsi': 0,  # front process state indicator, 0x70
-		'rld': 0    # rear logic display, 0x75, 0x73, 0x72
-	}
-
-	# Flashlight Off ... why?
-	GPIO.setmode(GPIO.BCM)
-	GPIO.setwarnings(False)
-	GPIO.setup(26, GPIO.OUT)
-	GPIO.output(26, GPIO.LOW)
-
-	# setup audio
-	# if running as a service, might have to give full path
-	cwd = os.getcwd()
-	audio = Sounds(cwd + "/clips.json", '/clips')
-	audio.set_volume(25)
-	namespace.audio = audio
+	namespace.battery = 4.5
 
 	# End namespace setup
 	###################################
+
+	###################################
+	# Now setup process to talk to hardware
+
+	# setup main run flag
+	run_flag = mp.Event()
+	run_flag.set()
+
+	procs = []
+
+	# setup keypad process
+	kp = mp.Process(name='keypad_proc', target=keypad_proc, args=(run_flag, namespace,))
+	kp.start()
+	procs.append(kp)
+
+	# setup i2c process
+	i2c = mp.Process(name='i2c_proc', target=i2c_proc, args=(run_flag, namespace,))
+	i2c.start()
+	procs.append(i2c)
+
+	# ar = mp.Process(name='arduino_proc', target=arduino_proc, args=(run_flag, ns,))
+	# ar.start()
+	# procs.append(ar)
+
+	##################################
+	# setup hardware for each state/mode function
+	hw = factory(dome_motor_port, leg_motors_port)
+	# b_led = ButtonLED(6,5,13)
+
+	# test ---------------------
+	# vals = [True]*3
+	# b_led.setRGB(*vals)
 	# time.sleep(3)
-	# exit()
-	main_loop2(namespace)
+	# for i in range(3):
+	# 	print(i)
+	# 	vals = [True]*3
+	# 	vals[i] = False
+	# 	b_led.setRGB(*vals)
+	# 	time.sleep(3)
+
+	##################################
+	# Main Loop
+	# The program stay here until it is sent to state = 0 and exits this loop
+	try:
+		while not namespace.safety_kill:
+			# there was a signal to shutdown this software
+			if namespace.current_state == 0:
+				# b_led.setRGB(False, False, False)
+				print("told to stop")
+				break
+			elif namespace.current_state == 1:
+				# b_led.setRGB(True, False, False) # red
+				standby_func(hw, namespace)
+			elif namespace.current_state == 2:
+				# b_led.setRGB(True, True, True)  # it doesn't really get white, more yellow
+				static_func(hw, namespace)
+			elif namespace.current_state == 3:
+				# b_led.setRGB(False, True, False) # green
+				remote_func(hw, namespace)
+			else:
+				print("Invalid state, going to standby mode")
+				namespace.current_state = 1
+	except KeyboardInterrupt:
+		print("ctl-C detected")
+
+	# shutdown processes
+	run_flag.clear()
+	for process in procs:
+		process.join(timeout=0.1)
+		if process.is_alive():
+			process.terminate()
+
+	##################################
+	# clean up remaining HW stuff
+	PWM.all_stop()  # shut off all servos
+	ButtonLED.cleanup()  # cleanup the gpio library stuff
+
+	# see if we were asked to shutdown/reboot ... if so, do it
+	if namespace.reboot == True:
+		reboot()
+	elif namespace.shutodwn == True:
+		shutdown()
