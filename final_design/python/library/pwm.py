@@ -138,7 +138,7 @@ class Servo(PWM):
 		self.pwm.set_pwm(self.channel, 0, pulse)
 
 
-class FlashlightPWM(object):
+class FlashlightPWM(PWM):
 	"""
 	This handles low level flashlight pwm controller and timing
 	"""
@@ -146,17 +146,11 @@ class FlashlightPWM(object):
 	pwm_min = 0  # Min pulse length out of 4096
 
 	def __init__(self, channel):
-		self.pwm = global_pwm
-		if 0 > channel > 15:
-			raise Exception('Servo channel out of range[0-15]: {}'.format(channel))
-		self.channel = channel
+		PWM.__init__(self, channel)
 
-	def stop(self):
-		self.pwm.set_pwm(self.channel, 0, 0x1000)
-
-	def set(self, light, value):
+	def set(self, value):
 		"""
-		light - which light
-		value - 0-4095
+		value - 0-100%
 		"""
-		pass
+		pulse = int(max(min(100, value), 0)*40.95)
+		self.pwm.set_pwm(self.channel, 0, pulse)

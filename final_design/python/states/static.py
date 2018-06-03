@@ -137,13 +137,13 @@ def static_func(hw, ns):
 	legs.drive(2, 0)
 
 	flash = hw['flashlight']
-	flash.set(True)
-	time.sleep(0.1)
-	flash.set(False)
-	time.sleep(0.1)
-	flash.set(True)
-	time.sleep(0.1)
-	flash.set(False)
+	flash.set(1)
+	time.sleep(0.7)
+	flash.set(0)
+	time.sleep(0.7)
+	flash.set(1)
+	time.sleep(0.7)
+	flash.set(0)
 
 	audio = hw['audio']
 	audio.speak('start')

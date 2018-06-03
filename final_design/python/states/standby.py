@@ -61,9 +61,9 @@ def standby_func(hw, ns):
 
 	flash = hw['flashlight']
 
-	flash.set(True)
-	time.sleep(0.1)
-	flash.set(False)
+	flash.set(1)
+	time.sleep(1)
+	flash.set(0)
 
 	while ns.current_state == 1:
 		print("standing by ...")
