@@ -2,4 +2,4 @@
 
 # NPC 2212 12V Motor
 
-- [Datasheet](datasheet.pdf)
+- [Datasheet](npc-2212.pdf)
