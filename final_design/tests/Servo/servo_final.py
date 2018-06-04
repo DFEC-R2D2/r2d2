@@ -37,15 +37,10 @@ if __name__ == "__main__":
 	cur_s = 0
 	try:
 		while 1:
-			choice = input("Pick options:\nSelect Servo[0-4] to controll\n5-incr\n6-decr\n7-open\n8-center\n9-closed\n>>")
+			choice = input("Pick options:\nSelect Servo[0-4] to controll\n5-incr\n6-decr\n7-open\n8-center\n9-closed\n>> ")
 			print(choice)
-			elif choice == 7:
-				s.angle = servo_limits[cur_s][0]
-			elif choice == 8:
-				s.angle = sum(servo_limits[cur_s])/2
-			elif choice == 9:
-				s.angle = servo_limits[cur_s][1]
-			elif choice in [0,1,2,3,4]:
+
+			if choice in [0,1,2,3,4]:
 				print("Running Servo[{}] ...".format(choice))
 				s = servos[choice]
 				s.angle = sum(servo_limits[choice])/2
@@ -56,6 +51,12 @@ if __name__ == "__main__":
 			elif choice == 6:
 				s.angle -= 2
 				print(">", s.angle)
+			elif choice == 7:
+				s.angle = servo_limits[cur_s][0]
+			elif choice == 8:
+				s.angle = sum(servo_limits[cur_s])/2
+			elif choice == 9:
+				s.angle = servo_limits[cur_s][1]
 
 
 			sleep(0.1)
