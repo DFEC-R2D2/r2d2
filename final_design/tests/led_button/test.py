@@ -11,7 +11,7 @@ from library import ButtonLED
 
 
 if __name__ == "__main__":
-    button = ButtonLED(6,5,13)
+    button = ButtonLED(16,26,20)
     try:
         while True:
             choice = input("Enter LED color:\n0-Off\n1-Red\n2-Green\n3-Blue\n4-Quit\n>>")

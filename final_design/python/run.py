@@ -164,7 +164,9 @@ def arduino_proc(flag, ns):
 
 def i2c_proc(flag, ns):
 	"""
-	Everything attached to i2c bus goes here so we don't have to do semifores
+	Everything attached to i2c bus goes here so we don't have to do semifores.
+	Also, the lcd button code is here too so it is always in sync with the
+	led matricies.
 	"""
 	print("Starting:", mp.current_process().name)
 	imu = IMU(gs=4, dps=2000, verbose=False)
@@ -184,7 +186,7 @@ def i2c_proc(flag, ns):
 	ns.servo_angles = servo_angles
 	servos[1].stop()
 
-	b_led = ButtonLED(6,5,13)
+	b_led = ButtonLED(26,16,20)
 
 	# test ---------------------
 	# vals = [True]*3
@@ -278,7 +280,7 @@ def keypad_proc(flag, ns):
 	# WARNING: GPIO is not thread/multiprocessor safe and these need to be
 	# in the same process ... or atleast I don't know how to handle them in
 	# different ones
-	# kp = Keypad()
+	kp = Keypad()
 	# b_led = ButtonLED(6,5,13)
 
 	# test ---------------------
