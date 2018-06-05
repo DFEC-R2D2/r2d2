@@ -1,6 +1,6 @@
 # PS4 Controller
 
-![Sony PS4 Dual Shock Controller](pics/ps4.jpg){width=50%}
+![Sony PS4 Dual Shock Controller](pics/ps4.jpg)
 
 This will show you how to setup a bluetooth PS4 controller on a Raspberry Pi with Linux Raspbian. You won't have access to *everything*, like the accels and gyros, but you will have all of the buttons and analog sticks. Then using python and SDL2, I can easily interface with joystick.
 
@@ -187,7 +187,7 @@ Other useful info:
 
 ## Reconnect after reboot
 
-![](paired.jpg)
+![](pics/paired.jpg)
 
 When your controller is paired to R2, the light bar on the front will be a solid blue.
 
