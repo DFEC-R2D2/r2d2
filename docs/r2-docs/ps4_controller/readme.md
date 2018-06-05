@@ -1,18 +1,8 @@
----
-title: Setting Up PS4 Controller with Linux Raspbian
-author: Kevin J. Walchko
-header-includes:
-    - \usepackage{fancyhdr}
-    - \pagestyle{fancy}
-    - \fancyhead[CO,CE]{ECE 387}
-    - \fancyfoot[CO,CE]{\thepage}
-    - \fancyfoot[LE,RO]{Robots are cool!}
-abstract: This will show you how to setup a bluetooth PS4 controller on a Raspberry Pi with Linux Raspbian. You won't have access to *everything*, like the accels and gyros, but you will have all of the buttons and analog sticks. Then using python and SDL2, I can easily interface with joystick.
----
-
 # PS4 Controller
 
 ![Sony PS4 Dual Shock Controller](pics/ps4.jpg){width=50%}
+
+This will show you how to setup a bluetooth PS4 controller on a Raspberry Pi with Linux Raspbian. You won't have access to *everything*, like the accels and gyros, but you will have all of the buttons and analog sticks. Then using python and SDL2, I can easily interface with joystick.
 
 ## Setup Bluetooth and Pairing
 
@@ -197,9 +187,32 @@ Other useful info:
 
 ## Reconnect after reboot
 
+![](paired.jpg)
+
+When your controller is paired to R2, the light bar on the front will be a solid blue.
+
 1. put PS4 controller into pairable mode (press PS button and Share), the front light bar will flash.
 2. run `bluetoothctl`
 	1. connect 1C:66:6D:76:9B:B4
+
+# Current R2 PS4 Controller
+
+Here is the current controller info
+
+[Wireless Controller]# info 40:1B:5F:B6:F8:58
+Device 40:1B:5F:B6:F8:58
+	Name: Wireless Controller
+	Alias: Wireless Controller
+	Class: 0x002508
+	Icon: input-gaming
+	Paired: yes
+	Trusted: yes
+	Blocked: no
+	Connected: yes
+	LegacyPairing: no
+	UUID: Human Interface Device... (00001124-0000-1000-8000-00805f9b34fb)
+	UUID: PnP Information           (00001200-0000-1000-8000-00805f9b34fb)
+	Modalias: usb:v054Cp09CCd0100
 
 # Debug
 
