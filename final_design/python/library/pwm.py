@@ -92,6 +92,8 @@ class Servo(PWM):
 	angles are in degrees servo commands are between 0 and 180 degrees
 	"""
 	_angle = 0.0  # current angle
+	open = 0
+	close = 180
 
 	def __init__(self, channel):
 		"""
@@ -122,18 +124,30 @@ class Servo(PWM):
 		self.minAngle = mina
 		self.maxAngle = maxa
 
-	def goMaxAngle(self):
-		self._angle = self.maxAngle
+	# def goMaxAngle(self):
+	# 	self._angle = self.maxAngle
+	# 	pulse = self.angleToPWM(self._angle)
+	# 	self.pwm.set_pwm(self.channel, 0, pulse)
+	# 	print("max pwm", pulse)
+	#
+	# def goHalfAngle(self):
+	# 	self._angle = (self.maxAngle - self.maxAngle)/2
+	# 	pulse = self.angleToPWM(self._angle)
+	# 	self.pwm.set_pwm(self.channel, 0, pulse)
+	#
+	# def goMinAngle(self):
+	# 	self._angle = self.minAngle
+	# 	pulse = self.angleToPWM(self._angle)
+	# 	self.pwm.set_pwm(self.channel, 0, pulse)
+	# 	print("min pwm", pulse)
+
+	def openDoor(self):
+		self._angle = max(min(self.maxAngle, self.open), self.minAngle)
 		pulse = self.angleToPWM(self._angle)
 		self.pwm.set_pwm(self.channel, 0, pulse)
 
-	def goHalfAngle(self):
-		self._angle = (self.maxAngle - self.maxAngle)/2
-		pulse = self.angleToPWM(self._angle)
-		self.pwm.set_pwm(self.channel, 0, pulse)
-
-	def goMinAngle(self):
-		self._angle = self.minAngle
+	def closeDoor(self):
+		self._angle = max(min(self.maxAngle, self.close), self.minAngle)
 		pulse = self.angleToPWM(self._angle)
 		self.pwm.set_pwm(self.channel, 0, pulse)
 

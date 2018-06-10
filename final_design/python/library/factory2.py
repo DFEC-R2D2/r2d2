@@ -10,7 +10,7 @@ from library.sounds import Sounds
 # from library import Arduino
 from library.led_matrix import LEDDisplay
 from library.pwm import Servo, FlashlightPWM
-from library.flashlight import FlashlightGPIO
+# from library.flashlight import FlashlightGPIO
 import os
 # from library import Arduino
 
@@ -55,6 +55,7 @@ def factory(dome_motor_port, leg_motors_port):
 
 	# ret['flashlight'] = FlashlightGPIO(26)
 	ret['flashlight'] = FlashlightPWM(15)
+	# ret['flashlight'] = None
 
 	# a = Arduino(arduino_port, 19200)
 	# ret['arduino'] = a

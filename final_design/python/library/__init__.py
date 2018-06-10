@@ -13,5 +13,5 @@ from library.led_matrix import LEDDisplay
 from library.factory2 import factory
 from library.factory2 import reset_all_hw
 from library.logic_display import LogicFunctionDisplay
-from library.flashlight import FlashlightGPIO
+# from library.flashlight import FlashlightGPIO
 from library.flashlight import ButtonLED

@@ -2,7 +2,7 @@
 
 There are several folders holding the final code:
 
-- `ardunio`: holds the Ardunio code for battery monitoring and ultrasound sensors
+- `ardunio`: holds the Arduino code for battery monitoring and ultrasound sensors
 - `mechanical`: STL files for parts that were designed and 3D printed
 - `node`: holds the Node.js web server code and data
 - `python`: holds the python and data files that run R2

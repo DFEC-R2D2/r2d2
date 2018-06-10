@@ -17,32 +17,33 @@ class BaseGPIO(object):
 	# 	# pass
 	@staticmethod
 	def cleanup():
-		print("GPIO cleanup")
-		GPIO.cleanup()
+		# print("GPIO cleanup")
+		# GPIO.cleanup()
+		pass
 
 
-class FlashlightGPIO(BaseGPIO):
-	"""
-	This handles low level flashlight
-	"""
-
-	def __init__(self, pin):
-		BaseGPIO.__init__(self)
-		self.pin = pin
-		GPIO.setmode(GPIO.BCM)
-		GPIO.setwarnings(False)
-		GPIO.setup(self.pin,GPIO.OUT)
-
-	# def __del__(self):
-	# 	GPIO.output(self.pin,GPIO.LOW)
-
-	def set(self, on):
-		"""
-		"""
-		if on:
-			GPIO.output(self.pin,GPIO.HIGH)
-		else:
-			GPIO.output(self.pin,GPIO.LOW)
+# class FlashlightGPIO(BaseGPIO):
+# 	"""
+# 	This handles low level flashlight
+# 	"""
+#
+# 	def __init__(self, pin):
+# 		BaseGPIO.__init__(self)
+# 		self.pin = pin
+# 		GPIO.setmode(GPIO.BCM)
+# 		GPIO.setwarnings(False)
+# 		GPIO.setup(self.pin,GPIO.OUT)
+#
+# 	# def __del__(self):
+# 	# 	GPIO.output(self.pin,GPIO.LOW)
+#
+# 	def set(self, on):
+# 		"""
+# 		"""
+# 		if on:
+# 			GPIO.output(self.pin,GPIO.HIGH)
+# 		else:
+# 			GPIO.output(self.pin,GPIO.LOW)
 
 
 class ButtonLED(BaseGPIO):

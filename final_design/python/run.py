@@ -1,5 +1,5 @@
 #!/usr/bin/env python2
-# Authors:
+# Author:
 # Kevin Walchko
 
 
@@ -23,7 +23,7 @@ from math import sqrt
 # from pysabertooth import Sabertooth
 # from smc import SMC
 from nxp_imu import IMU
-# import RPi.GPIO as GPIO  # remove and use Flashlight!!!
+import RPi.GPIO as GPIO  # at the end, cleanup
 
 # get drivers from library
 from library import Sounds
@@ -36,7 +36,7 @@ from library import LogicFunctionDisplay
 from library import factory
 from library import PWM
 from library import ButtonLED
-from library import FlashlightGPIO
+# from library import FlashlightGPIO
 
 # States
 from states.remote import remote_func
@@ -56,7 +56,7 @@ def getHostSerialNumber():
 
 ssn = getHostSerialNumber()
 
-if ssn == '1':  # real R2D2
+if ssn == '00000000f4e2702a':  # real R2D2
 	arduino_port = '/dev/serial/by-id/usb-Arduino__www.arduino.cc__0042_95432313138351F00180-if00'
 	leg_motors_port = '/dev/serial/by-id/usb-Dimension_Engineering_Sabertooth_2x32_16001878D996-if01'
 	dome_motor_port = '/dev/serial/by-id/usb-Pololu_Corporation_Pololu_Simple_Motor_Controller_18v7_52FF-6F06-7283-5255-5252-2467-if00'
@@ -82,7 +82,14 @@ if ssn == '1':  # real R2D2
 			[0x74,1]
 		]
 	}
-
+	# original
+	# servo_limits = {
+	# 	0: [30, 60], # opened/closed
+	# 	1: [94, 124],
+	# 	2: [20, 49],
+	# 	3: [30, 60],
+	# 	4: [15, 45],
+	# }
 	servo_limits = {
 		0: [30, 60], # opened/closed
 		1: [94, 124],
@@ -142,6 +149,10 @@ def normalize(v):
 
 
 def arduino_proc(flag, ns):
+	"""
+	This process talks to the arduino via serial comm. All data is pushed
+	into shared memory
+	"""
 	ser = Arduino(arduino_port, 19200)
 
 	while flag.is_set():
@@ -159,6 +170,7 @@ def arduino_proc(flag, ns):
 		ser.write('1')
 		for u in [ns.usound0, ns.usound1, ns.usound2, ns.usound3]:
 			d = ser.readline()
+			print("us",d)
 			if d:
 				u = float(d)
 
@@ -175,16 +187,19 @@ def i2c_proc(flag, ns):
 
 	servos = []
 	servo_angles = []
-	for id in range(5):
+	for id in servo_limits:
 		s = Servo(id)
-		s.setMinMax(*servo_limits[id])  # set open(min)/closed(max) angles
-		s.goMaxAngle()  # closed
+		# s.setMinMax(*servo_limits[id])  # set open(min)/closed(max) angles
+		s.open = servo_limits[id][0]
+		s.close = servo_limits[id][1]
+		s.closeDoor()  # closed
 		# servo_angles.append(sum(servo_limits[id])/2)
 		servos.append(s)
 		servo_angles.append(s.angle)
+		time.sleep(0.01)
 	# init namespace to have the same angles
 	ns.servo_angles = servo_angles
-	servos[1].stop()
+	Servo.all_stop()
 
 	b_led = ButtonLED(26,16,20)
 
@@ -218,7 +233,6 @@ def i2c_proc(flag, ns):
 		# GREEN  = 1
 		# RED    = 2
 		# YELLOW = 3
-
 		led_update += 1
 		if led_update % 20 == 0:
 			led_update = 0
@@ -242,6 +256,9 @@ def i2c_proc(flag, ns):
 			leds.setRLD()
 
 		# update servos if the have changed
+		# namespace.servo_angles: another process wants to change the angle
+		# servo_angles: local copy, if no difference between the 2, do nothing
+		# TODO: should these just be open/close (T/F)? why angles?
 		for nsa, sa, servo in zip(ns.servo_angles, servo_angles, servos):
 			if nsa == sa:
 				continue
@@ -250,20 +267,22 @@ def i2c_proc(flag, ns):
 			time.sleep(0.1)
 
 		if ns.servo_wave:
+			ns.servo_wave = False
 			print('servo wave')
 			for s in servos:
-				s.goHalfAngle()
+				s.openDoor()
 				time.sleep(0.2)
 
-			servos[1].stop()
-			time.sleep(0.5)
+			# servos[1].stop()
+			time.sleep(2)
+			# Servo.all_stop()
 			for s in servos:
-				s.goMinAngle()
+				s.closeDoor()
 				time.sleep(0.2)
 
-			servos[1].stop()
-			time.sleep(0.5)
-			ns.servo_wave = False
+			# servos[1].stop()
+			time.sleep(2)
+			Servo.all_stop()
 
 	b_led.setRGB(False, False, False)
 
@@ -294,13 +313,14 @@ def keypad_proc(flag, ns):
 	while flag.is_set():
 		time.sleep(0.1)
 
-		# key = kp.getKey()
+		key = kp.getKey()
+
 		# if key is not None:
 		# 	print('key:', key)
 
 		# DEBUGGING CODE -----------
-		key = random.randint(1, 3)  # debug, pick random state
-		time.sleep(5)
+		# key = random.randint(1, 3)  # debug, pick random state
+		# time.sleep(5)
 		# key = 2
 		# print('*'*10)
 		# print('* Key:', key)
@@ -314,41 +334,35 @@ def keypad_proc(flag, ns):
 			if key in [1, 2, 3]:
 				ns.current_state = key
 
-				# set power button led
-				# if key == 1:
-				# 	b_led.setRGB(True, False, False)
-				# elif key == 2:
-				# 	b_led.setRGB(True, True, True)
-				# elif key == 3:
-				# 	b_led.setRGB(False, True, False)
-
 			elif key in [4, 5, 6]:
 				ns.emotion = key
+
+			elif key == 7:
+				ns.servo_wave = True
 
 			elif key == 8:
 				print("<<< got turn-off key press >>>")
 				ns.current_state = 0
-				# b_led.setRGB(False, False, False)
 				break
 
 			elif key == "#":
 				# FIXME: not sure the right way to do this cleanly
 				print("Shutting down")
-				ns.shutdown = True
+				ns.shutdown = True  # shutdown linux
 				ns.current_state = 0
-				# b_led.setRGB(False, False, False)
 				break
 
-			elif key == "%":
+			elif key == "*":
 				print("Rebooting now")
 				ns.current_state = 0
-				ns.reboot = True
-				# b_led.setRGB(False, False, False)
+				ns.reboot = True      # reboot linux
 				break
 
 
 if __name__ == '__main__':
-	# setup a global namespace for all processes
+	# setup a global namespace for all processes to access shared memory
+	# WANING: you cannot put any HW drivers in memory, they won't work correctly.
+	# Anything in shared memory needs to be picklable (python thing)
 	mgr = mp.Manager()
 	namespace = mgr.Namespace()
 
@@ -380,7 +394,7 @@ if __name__ == '__main__':
 
 	# servo settings
 	namespace.servo_angles = [0]*5  # these will get reset when servos init
-	namespace.servo_wave = True
+	namespace.servo_wave = False
 
 	# ultra sonic sensors for safety
 	# namespace.usound0 = 0
@@ -413,7 +427,7 @@ if __name__ == '__main__':
 	i2c.start()
 	procs.append(i2c)
 
-	# ar = mp.Process(name='arduino_proc', target=arduino_proc, args=(run_flag, ns,))
+	# ar = mp.Process(name='arduino_proc', target=arduino_proc, args=(run_flag, namespace,))
 	# ar.start()
 	# procs.append(ar)
 
@@ -468,10 +482,11 @@ if __name__ == '__main__':
 	##################################
 	# clean up remaining HW stuff
 	PWM.all_stop()  # shut off all servos
-	ButtonLED.cleanup()  # cleanup the gpio library stuff
+	# ButtonLED.cleanup()  # cleanup the gpio library stuff
+	GPIO.cleanup()  # clean up gpio library stuff
 
 	# see if we were asked to shutdown/reboot ... if so, do it
 	if namespace.reboot == True:
 		reboot()
-	elif namespace.shutodwn == True:
+	elif namespace.shutdown == True:
 		shutdown()
