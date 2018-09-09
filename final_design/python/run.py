@@ -130,6 +130,8 @@ else:
 # Reboots R2D2
 def reboot():
 	# namespace.audio.sound('shutdown')
+	call("sudo service r2d2 stop", shell=True)
+	call("sudo service r2-webserver stop", shell=True)
 	call("sudo reboot now", shell=True)
 	time.sleep(3)
 	return
@@ -138,6 +140,8 @@ def reboot():
 # Shutdowns R2D2
 def shutdown():
 	# namespace.audio.sound('shutdown')
+        call("sudo service r2d2 stop", shell=True)
+        call("sudo service r2-webserver stop", shell=True)
 	call("sudo shutdown", shell=True)
 	time.sleep(3)
 	return
