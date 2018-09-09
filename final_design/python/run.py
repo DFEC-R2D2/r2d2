@@ -46,6 +46,9 @@ from states.static import static_func
 # Emotions
 from states.emotions import angry, happy, confused
 
+print("this file", __file__)
+bin_path = __file__[:-7]  # assume file is /run.py
+
 def getHostSerialNumber():
 	ssn = None
 	a=check_output(["cat", '/proc/cpuinfo'])
@@ -58,6 +61,7 @@ ssn = getHostSerialNumber()
 
 if ssn == '00000000f4e2702a':  # real R2D2
 	arduino_port = '/dev/serial/by-id/usb-Arduino__www.arduino.cc__0042_95432313138351F00180-if00'
+	# arduino_port = '/dev/ttyACM0'
 	leg_motors_port = '/dev/serial/by-id/usb-Dimension_Engineering_Sabertooth_2x32_16001878D996-if01'
 	dome_motor_port = '/dev/serial/by-id/usb-Pololu_Corporation_Pololu_Simple_Motor_Controller_18v7_52FF-6F06-7283-5255-5252-2467-if00'
 
@@ -159,20 +163,32 @@ def arduino_proc(flag, ns):
 		time.sleep(0.25)
 
 		# read battery
-		ser.write('2')
-		d = ser.readline()
-		if d:
-			batt = float(d)
-			ns.battery = batt
-			print("battery", batt)
+		# ser.write(b'2')
+		# d = ser.readline()
+		# d = d.replace('\r', '').replace('\n', '')
+		# if d:
+		# 	batt = float(d)
+		# 	ns.battery = batt
+		# 	print("battery", batt)
+		ns.battery = ser.getBattery()
 
 		# read ultrasound
-		ser.write('1')
-		for u in [ns.usound0, ns.usound1, ns.usound2, ns.usound3]:
-			d = ser.readline()
-			print("us",d)
-			if d:
-				u = float(d)
+		# ser.write(b'1')
+		# ultra = []
+		# for i in range(4):
+		# 	d = ser.readline()
+		# 	d = d.replace('\r', '').replace('\n', '')
+		# 	print("us",d)
+		# 	if d:
+		# 		d = float(d)
+		# 	else:
+		# 		d = -1.0
+		# 	ultra.append(d)
+		# ns.ultrasounds = ultra
+		ns.ultrasounds = ser.getUltraSounds()
+
+		# print('batt', ns.battery)
+		# print('us', ns.ultrasounds)
 
 def i2c_proc(flag, ns):
 	"""
@@ -250,10 +266,12 @@ def i2c_proc(flag, ns):
 				b_led.setRGB(False, True, False)
 
 			# make something up for now
-			battc = random.randint(1,3)
-
-			leds.setFLD(csc, battc)
-			leds.setRLD()
+			# battc = random.randint(1,3)
+			if ns.set_all_leds:
+				leds.setAll(ns.set_all_leds)
+			else:
+				leds.setFLD(csc, 1)
+				leds.setRLD()
 
 		# update servos if the have changed
 		# namespace.servo_angles: another process wants to change the angle
@@ -268,6 +286,7 @@ def i2c_proc(flag, ns):
 
 		if ns.servo_wave:
 			ns.servo_wave = False
+			leds.setAll(1)
 			print('servo wave')
 			for s in servos:
 				s.openDoor()
@@ -335,7 +354,14 @@ def keypad_proc(flag, ns):
 				ns.current_state = key
 
 			elif key in [4, 5, 6]:
-				ns.emotion = key
+				# ns.emotion = key
+				if key == 4:
+					c = random.choice(["900", "help me", "religion", "moon", "smell"])
+					ns.wav = c
+				if key == 5:
+					# FIXME: make mp3
+					c = random.choice(["900", "help me", "religion", "moon", "smell"])
+					ns.wav = c
 
 			elif key == 7:
 				ns.servo_wave = True
@@ -386,6 +412,9 @@ if __name__ == '__main__':
 	# OpenCV can have false posatives
 	namespace.opencv_person_found = 1
 
+	namespace.wav = None
+	namespace.mp3 = None
+
 	# 0: None
 	# 1: angry
 	# 2: happy
@@ -397,13 +426,11 @@ if __name__ == '__main__':
 	namespace.servo_wave = False
 
 	# ultra sonic sensors for safety
-	# namespace.usound0 = 0
-	# namespace.usound1 = 0
-	# namespace.usound2 = 0
-	# namespace.usound3 = 0
 	namespace.ultrasounds = [0]*4
 
 	namespace.battery = 4.5
+
+	namespace.set_all_leds = None
 
 	# End namespace setup
 	###################################
@@ -427,13 +454,13 @@ if __name__ == '__main__':
 	i2c.start()
 	procs.append(i2c)
 
-	# ar = mp.Process(name='arduino_proc', target=arduino_proc, args=(run_flag, namespace,))
-	# ar.start()
-	# procs.append(ar)
+	ar = mp.Process(name='arduino_proc', target=arduino_proc, args=(run_flag, namespace,))
+	ar.start()
+	procs.append(ar)
 
 	##################################
 	# setup hardware for each state/mode function
-	hw = factory(dome_motor_port, leg_motors_port)
+	hw = factory(dome_motor_port, leg_motors_port, bin_path)
 	# b_led = ButtonLED(6,5,13)
 
 	# test ---------------------
@@ -456,6 +483,8 @@ if __name__ == '__main__':
 			if namespace.current_state == 0:
 				# b_led.setRGB(False, False, False)
 				print("told to stop")
+				namespace.set_all_leds =  2
+				time.sleep(1)
 				break
 			elif namespace.current_state == 1:
 				# b_led.setRGB(True, False, False) # red

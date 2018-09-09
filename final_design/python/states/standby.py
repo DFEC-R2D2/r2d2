@@ -21,7 +21,13 @@ def standby_func(hw, ns):
 
 	while ns.current_state == 1:
 		# print("standing by ...")
-		time.sleep(1)
+		if ns.wav:
+			audio.playWAV(ns.wav)
+			ns.wav = None
+		if ns.mp3:
+			audio.playMP3(ns.mp3)
+			ns.mp3 = None
+		time.sleep(0.25)
 
 
 	# exiting, reset all hw

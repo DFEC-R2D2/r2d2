@@ -46,42 +46,73 @@ def static_func(hw, ns):
 
 	person_found_cnt = 0
 
-	ns.servo_wave = True
+	# ns.servo_wave = True
+
+	detect = [False]*4
 
 	while ns.current_state == 2:
+		if ns.wav:
+			audio.playWAV(ns.wav)
+			ns.wav = None
+		if ns.mp3:
+			audio.playMP3(ns.mp3)
+			ns.mp3 = None
 		# Sensor Reading
 		# get ultrasound
+		us = ns.ultrasounds[:3]  # ignore back ultrasound
 
-		audio.sound('nerf')
+		for i, u in enumerate(us):
+			print('u', u)
+			if u > 1 and u < 60:
+				person_found_cnt += 1
+				if not detect[i]:
+					detect[i] = True
+			else:
+				detect[i] = False
+
+		print(detect)
+		if True in detect:
+			print("see you")
+			flash.set(5)
+			if (person_found_cnt%10) == 1:
+				audio.speak_random(5)
+
+		else:
+			person_found_cnt = 0
+			flash.set(0)
+		time.sleep(1)
+
+
+		# audio.playWAV('nerf')
 
 		# grab image and see if a person is there
-		ok, img = camera.read()
-		if ok:
-			print('-')
-			gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-			# cv2.imwrite('save.png', gray)
-
-			faces = faceCascade.detectMultiScale(
-				gray,
-				scaleFactor=1.1,
-				minNeighbors=5,
-				minSize=(30, 30)
-			)
-
-			if len(faces) > 0:
-				person_found_cnt += 1
-				print('+')
-			else:
-				person_found_cnt = 0
-				print('0')
-
-			if person_found_cnt > ns.opencv_person_found:
-				person_found_cnt = 0
-				audio.speak_random(2)
-				(x, y, w, h) = faces[0]
-				cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
-				# cv2.imwrite('face_save.png', img)
-				audio.speak('found')
+		# ok, img = camera.read()
+		# if ok:
+		# 	print('-')
+		# 	gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+		# 	# cv2.imwrite('save.png', gray)
+		#
+		# 	faces = faceCascade.detectMultiScale(
+		# 		gray,
+		# 		scaleFactor=1.1,
+		# 		minNeighbors=5,
+		# 		minSize=(30, 30)
+		# 	)
+		#
+		# 	if len(faces) > 0:
+		# 		person_found_cnt += 1
+		# 		print('+')
+		# 	else:
+		# 		person_found_cnt = 0
+		# 		print('0')
+		#
+		# 	if person_found_cnt > ns.opencv_person_found:
+		# 		person_found_cnt = 0
+		# 		audio.speak_random(2)
+		# 		(x, y, w, h) = faces[0]
+		# 		cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
+		# 		# cv2.imwrite('face_save.png', img)
+		# 		audio.speak('found')
 
 			# for (x, y, w, h) in faces:
 			# 	cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
@@ -89,7 +120,7 @@ def static_func(hw, ns):
 			# 	print("found person")
 
 		# time.sleep(0.5)
-		print('.')
+		# print('.')
 
 	# exiting, reset all hw
 	reset_all_hw(hw)

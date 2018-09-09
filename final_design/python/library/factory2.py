@@ -15,7 +15,7 @@ import os
 # from library import Arduino
 
 
-def factory(dome_motor_port, leg_motors_port):
+def factory(dome_motor_port, leg_motors_port, path):
 	"""
 	Creates objects. Multiprocessing Namespace can only handle python objects
 	that are picklable. The serial and i2c stuff isn't, so this factory creates
@@ -48,9 +48,10 @@ def factory(dome_motor_port, leg_motors_port):
 	saber.drive(2, 0)
 	ret['legs'] = saber
 
-	cwd = os.getcwd()
-	audio = Sounds(cwd + "/clips.json", '/clips')
-	audio.set_volume(25)
+	# cwd = os.getcwd()
+	cwd = path
+	audio = Sounds(cwd + "/clips.json", cwd + '/clips')
+	audio.set_volume(65)
 	ret['audio'] = audio
 
 	# ret['flashlight'] = FlashlightGPIO(26)

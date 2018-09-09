@@ -54,20 +54,29 @@ class LogicFunctionDisplay(object):
 			for led in self.rld:
 				led.clear()
 
+	def setAll(self, color):
+		if self.psi: self.psi.setSolid(color)
+		if self.fld_top: self.fld_top.setSolid(color)
+		if self.fld_bottom: self.fld_bottom.setSolid(color)
+		if self.rld:
+			for led in self.rld:
+				led.setSolid(color)
+
 	def setPSI(self, color):
 		if self.psi:
 			self.psi.setSolid(color)
 
 	def setFLD(self, top_color=None, bottom_color=None):
 		# update only if they exist AND there is a color change
-		if top_color and self.fld_top:
-			if self.current_top_color != top_color:
-				self.fld_top.setSolid(int(top_color))
-				self.current_top_color = top_color
+		# if top_color and self.fld_top:
+		if self.current_top_color != top_color:
+			self.fld_top.setSolid(int(top_color))
+			self.current_top_color = top_color
 		if bottom_color and self.fld_bottom:
-			if self.current_bottom_color != bottom_color:
-				self.fld_bottom.setSolid(int(bottom_color))
-				self.current_bottom_color = bottom_color
+			self.fld_bottom.setRandom()
+			# if self.current_bottom_color != bottom_color:
+				# self.fld_bottom.setSolid(int(bottom_color))
+				# self.current_bottom_color = bottom_color
 
 	def setRLD(self):
 		for led in self.rld:
