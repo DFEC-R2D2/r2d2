@@ -132,6 +132,7 @@ def reboot():
 	# namespace.audio.sound('shutdown')
 	call("sudo service r2d2 stop", shell=True)
 	call("sudo service r2-webserver stop", shell=True)
+	time.sleep(1)
 	call("sudo reboot now", shell=True)
 	time.sleep(3)
 	return
@@ -142,6 +143,7 @@ def shutdown():
 	# namespace.audio.sound('shutdown')
         call("sudo service r2d2 stop", shell=True)
         call("sudo service r2-webserver stop", shell=True)
+	time.sleep(1)
 	call("sudo shutdown", shell=True)
 	time.sleep(3)
 	return
@@ -192,7 +194,7 @@ def arduino_proc(flag, ns):
 		ns.ultrasounds = ser.getUltraSounds()
 
 		# print('batt', ns.battery)
-		# print('us', ns.ultrasounds)
+		print('us', ns.ultrasounds)
 
 def i2c_proc(flag, ns):
 	"""
@@ -315,6 +317,12 @@ def keypad_proc(flag, ns):
 	This thread handles the main keypad interface and sets the global state
 
 	Also, MIGHT, do ultrasound and battery
+
+	Keypad (https://www.adafruit.com/product/419)
+	Pi pins (BCM)
+	L  connector    R
+	-----------------
+	11 9 10 25 13 6 5
 	"""
 	print("Starting:", mp.current_process().name)
 	# arduinoSerialData = Arduino(arduino_port, 19200)
@@ -337,6 +345,7 @@ def keypad_proc(flag, ns):
 		time.sleep(0.1)
 
 		key = kp.getKey()
+		# print("key:", key)
 
 		# if key is not None:
 		# 	print('key:', key)

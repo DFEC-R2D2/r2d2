@@ -53,6 +53,7 @@ class Arduino(object):
 		self.serial.write(b'1')
 		for _ in range(4):
 			d = self.serial.readline()
+			print(d)
 			d = d.replace('\r', '').replace('\n', '')
 			if d:
 				d = float(d)
