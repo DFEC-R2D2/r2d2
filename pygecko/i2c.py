@@ -8,9 +8,40 @@
 
 from pygecko.multiprocessing import geckopy
 from pygecko.test import GeckoSimpleProcess
+from pygecko import IMU
 import time
+from hw import servo_limits
 
 
+class Callback(object):
+    def __init__(self):
+        # setup imu
+        self.imu = IMU(gs=4, dps=2000, verbose=False)
+
+        # led matricies
+        self.leds = LogicFunctionDisplay(led_data)
+        self.led_update = 0
+
+        # power button
+        b_led = ButtonLED(26,16,20)
+
+        # setup servo controller
+        servos = []
+        servo_angles = []
+        for id in servo_limits:
+            s = Servo(id)
+            # s.setMinMax(*servo_limits[id])  # set open(min)/closed(max) angles
+            s.open = servo_limits[id][0]
+            s.close = servo_limits[id][1]
+            s.closeDoor()  # closed
+            # servo_angles.append(sum(servo_limits[id])/2)
+            servos.append(s)
+            servo_angles.append(s.angle)
+            time.sleep(0.01)
+        self.servos = servos
+        Servo.all_stop()
+
+    def callback(self, topic, message)
 
 
 def i2c_proc(**kwargs):
@@ -19,30 +50,34 @@ def i2c_proc(**kwargs):
     Also, the lcd button code is here too so it is always in sync with the
     led matricies.
     """
+    if platform.system() != 'Linux':
+        gecko.logerror("{}: can only run on Linux".format(__FILE__))
+        return
+
     geckopy.init_node(kwargs)
-    
-    print("Starting:", mp.current_process().name)
-    imu = IMU(gs=4, dps=2000, verbose=False)
-    leds = LogicFunctionDisplay(led_data)
-    led_update = 0
+    rate = geckopy.Rate(10)
+    geckopy.loginfo("Starting i2c process")
+    # pub = geckopy.Publisher()
 
-    servos = []
-    servo_angles = []
-    for id in servo_limits:
-        s = Servo(id)
-        # s.setMinMax(*servo_limits[id])  # set open(min)/closed(max) angles
-        s.open = servo_limits[id][0]
-        s.close = servo_limits[id][1]
-        s.closeDoor()  # closed
-        # servo_angles.append(sum(servo_limits[id])/2)
-        servos.append(s)
-        servo_angles.append(s.angle)
-        time.sleep(0.01)
-    # init namespace to have the same angles
-    ns.servo_angles = servo_angles
-    Servo.all_stop()
+    # imu = IMU(gs=4, dps=2000, verbose=False)
+    # leds = LogicFunctionDisplay(led_data)
+    # led_update = 0
+    #
+    # servos = []
+    # servo_angles = []
+    # for id in servo_limits:
+    #     s = Servo(id)
+    #     # s.setMinMax(*servo_limits[id])  # set open(min)/closed(max) angles
+    #     s.open = servo_limits[id][0]
+    #     s.close = servo_limits[id][1]
+    #     s.closeDoor()  # closed
+    #     # servo_angles.append(sum(servo_limits[id])/2)
+    #     servos.append(s)
+    #     servo_angles.append(s.angle)
+    #     time.sleep(0.01)
+    # Servo.all_stop()
 
-    b_led = ButtonLED(26,16,20)
+    # b_led = ButtonLED(26,16,20)
 
     # test ---------------------
     # vals = [True]*3
@@ -55,11 +90,9 @@ def i2c_proc(**kwargs):
     #     b_led.setRGB(*vals)
     #     time.sleep(3)
 
-    while flag.is_set():
-        a, m, g = imu.get()
-        ns.accels = a  # accel [x,y,z] g's
-        ns.mags = m    # magnetometer [x,y,z] mT
-        ns.gyros = g   # gyros [x,y,z] rads/sec
+    # while flag.is_set():
+        # a, m, g = imu.get()
+        # pub.pub(IMU(a,m,g))
 
         # FIXME: real hw is at a funny oriendataion
         # a = normalize(a)
@@ -129,3 +162,13 @@ def i2c_proc(**kwargs):
             Servo.all_stop()
 
     b_led.setRGB(False, False, False)
+
+	##################################
+	# clean up remaining HW stuff
+	PWM.all_stop()  # shut off all servos
+	# ButtonLED.cleanup()  # cleanup the gpio library stuff
+	GPIO.cleanup()  # clean up gpio library stuff
+
+
+if __name__ == '__main__':
+    i2c_proc()

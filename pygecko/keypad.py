@@ -7,13 +7,31 @@
 ##############################################
 
 from pygecko.multiprocessing import geckopy
-from pygecko.test import GeckoSimpleProcess
+# from pygecko.test import GeckoSimpleProcess
 import time
+from messages import Audio, Servo
 
-from collections import namedtuple
-# KeyPad = namedtuple('KeyPad', 'cmd')
-Audio = namedtuple('Audio','file voice')
-Servo = namedtuple('Servo', 'action')  # 'wave', ('open', 1)
+
+# Reboots R2D2
+def reboot():
+    # namespace.audio.sound('shutdown')
+    call("sudo service r2d2 stop", shell=True)
+    call("sudo service r2-webserver stop", shell=True)
+    time.sleep(1)
+    call("sudo reboot now", shell=True)
+    time.sleep(3)
+    return
+
+
+# Shutdowns R2D2
+def shutdown():
+    # namespace.audio.sound('shutdown')
+        call("sudo service r2d2 stop", shell=True)
+        call("sudo service r2-webserver stop", shell=True)
+    time.sleep(1)
+    call("sudo shutdown", shell=True)
+    time.sleep(3)
+    return
 
 
 def keypad_proc(**kwargs):
@@ -26,6 +44,9 @@ def keypad_proc(**kwargs):
     -----------------
     11 9 10 25 13 6 5
     """
+    if platform.system() != 'Linux':
+        gecko.logerror("{}: can only run on Linux".format(__FILE__))
+
     geckopy.init_node(**kwargs)
     rate = geckopy.Rate(5)
 
@@ -85,3 +106,7 @@ def keypad_proc(**kwargs):
         current_state = 0
         pub.pub('state', current_state)
         time.sleep(1)
+
+
+if __name__ == '__main__':
+    vision_proc()
