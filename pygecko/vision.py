@@ -6,7 +6,7 @@
 # see LICENSE for full details
 ##############################################
 
-# from pygecko.multiprocessing import geckopy
+from pygecko.multiprocessing import geckopy
 # from pygecko.test import GeckoSimpleProcess
 import time
 import cv2
@@ -16,7 +16,6 @@ from imutils.video import VideoStream
 
 def vision_proc(**kwargs):
     """
-
     """
     geckopy.init_node(**kwargs)
     rate = geckopy.Rate(10)
@@ -30,10 +29,9 @@ def vision_proc(**kwargs):
     else:
         camera = VideoStream(usePiCamera=False).start()
 
-    # while not geckopy.is_shutdown():
-    while True:
+    while not geckopy.is_shutdown():
         img = camera.read()
-        print(img.shape)
+        geckopy.loginfo(img.shape)
 
         rate.sleep()
 
